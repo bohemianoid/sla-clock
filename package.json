@@ -1,0 +1,40 @@
+{
+  "name": "sla-clock",
+  "productName": "SLA Clock",
+  "version": "0.1.3",
+  "description": "Remaining SLA time in your menu bar",
+  "main": "dist-js",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "start": "tsc && electron .",
+    "pack": "tsc && electron-builder --dir",
+    "dist": "tsc && electron-builder --macos"
+  },
+  "repository": "github:simonroth/sla-clock",
+  "author": "Simon Roth <code@simonroth.ch> (https://simonroth.ch)",
+  "license": "MIT",
+  "dependencies": {
+    "cron": "^1.7.2",
+    "date-fns": "^2.6.0",
+    "electron-debug": "^3.0.1",
+    "electron-util": "^0.12.2",
+    "element-ready": "^4.1.1",
+    "electron-store": "^5.0.0",
+    "is-url-superb": "^3.0.0"
+  },
+  "devDependencies": {
+    "electron": "^7.0.0",
+    "electron-builder": "^21.2.0",
+    "typescript": "^3.6.4"
+  },
+  "build": {
+    "files": [
+      "**/*",
+      "!media${/*}"
+    ],
+    "appId": "ch.simonroth.sla-clock",
+    "mac": {
+      "darkModeSupport": true
+    }
+  }
+}

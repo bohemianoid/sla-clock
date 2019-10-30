@@ -1,0 +1,37 @@
+(window => {
+  if (window.App) {
+    if (window.App.convos) {
+      if (window.App.convos.pager.hasNext) {
+        window.location.href = `${
+          window.App.convos.pager.baseURL
+        }1/${
+          window.App.convos.pager.total
+        }/`;
+        return;
+      }
+    }
+  }
+
+  function postTickets(): void {
+    if (window.App) {
+      if (window.App.convos) {
+        const convos = window.App.convos.models;
+
+        if (Object.entries(convos).length) {
+          window.postMessage({
+            type: 'tickets',
+            data: JSON.parse(JSON.stringify(convos))
+          }, '*');
+        }
+      }
+    }
+  }
+
+  window.addEventListener('message', ({ data: { type } }) => {
+    if (type === 'post-tickets') {
+      postTickets();
+    }
+  });
+
+  postTickets();
+})(window);
