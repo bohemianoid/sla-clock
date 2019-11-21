@@ -16,6 +16,7 @@ import {
 import debug = require('electron-debug');
 import {
   formatTimer,
+  getStatusIcon,
   stopClock,
   updateClock
 } from './clock';
@@ -106,6 +107,7 @@ function createHiddenWindow(): BrowserWindow {
 
     const ticketItems = slaTickets.slice(0, 3).map(({ id, number, sla }) => {
       return {
+        icon: getStatusIcon(sla),
         label: `${number.toString()} — ${formatTimer(sla)}`,
         click() {
           shell.openExternal(`https://secure.helpscout.net/conversation/${id}`);
