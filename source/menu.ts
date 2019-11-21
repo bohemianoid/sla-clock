@@ -17,6 +17,12 @@ import { updateClock } from './clock';
 import config from './config';
 import tray from './tray';
 
+export const helpScoutMenuItem: MenuItemConstructorOptions =
+  openUrlMenuItem({
+    label: 'Open Help Scout',
+    url: config.get('mailboxFolderURL')
+  });
+
 export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
   return [
     {
@@ -186,6 +192,7 @@ export default function updateMenu(): Menu {
       {
         type: 'separator'
       },
+      helpScoutMenuItem,
       logOutMenuItem
     ]),
     {
