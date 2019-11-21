@@ -13,7 +13,7 @@ type StoreType = {
     hours: number;
     minutes: number;
   };
-  filterNoSLA: boolean;
+  filterPending: boolean;
 };
 
 const schema: {[Key in keyof StoreType]: Store.Schema} = {
@@ -63,9 +63,9 @@ const schema: {[Key in keyof StoreType]: Store.Schema} = {
       minutes: 0
     }
   },
-  filterNoSLA: {
+  filterPending: {
     type: 'boolean',
-    default: false
+    default: true
   }
 }
 

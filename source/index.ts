@@ -60,9 +60,9 @@ function createHiddenWindow(): BrowserWindow {
 
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
     const slaTickets = tickets
-                         .filter(({ noSLA }) => {
-                           if (config.get('filterNoSLA')) {
-                             return !noSLA;
+                         .filter(({ status }) => {
+                           if (config.get('filterPending')) {
+                             return status !== 2;
                            }
 
                            return true;

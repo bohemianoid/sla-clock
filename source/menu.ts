@@ -69,11 +69,11 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
 export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
   return [
     {
-      label: 'Filter No SLA (no-sla)',
+      label: 'Filter Status Pending',
       type: 'checkbox',
-      checked: config.get('filterNoSLA'),
+      checked: config.get('filterPending'),
       click(menuItem) {
-        config.set('filterNoSLA', menuItem.checked),
+        config.set('filterPending', menuItem.checked),
         updateClock();
         tray.updateMenu();
         updateMenu();

@@ -24,15 +24,9 @@ function createTicket(entry: any): Ticket {
 
   ticket.id = entry.id;
   ticket.customer = entry.customer.fullName;
-
-  if (entry.tags) {
-    ticket.noSLA = entry.tags.some(({ name }) => name === 'no-sla');
-  } else {
-    ticket.noSLA = false;
-  }
-
   ticket.subject = entry.subject;
   ticket.number = entry.number;
+  ticket.status = entry.status;
 
   if (typeof entry.waitingSince === 'string') {
     if (entry.waitingSince === '') {
