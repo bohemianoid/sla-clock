@@ -21,6 +21,7 @@ import {
 } from './menu';
 
 let tray: Tray | null = null;
+let animation: NodeJS.Timer | null = null;
 
 function getMenuItems(): MenuItemConstructorOptions[] {
   const menuItems = [
@@ -76,21 +77,21 @@ export default {
       return;
     }
 
-    tray = new Tray(getIconPath());
+    tray = new Tray(getIconPath(false));
     tray.setContextMenu(getContextMenu(getMenuItems()));
 
     app.dock.hide();
 
     tray.on('drag-enter', () => {
-      tray.setImage(getDropIconPath());
+      tray.setImage(getIconPath(true));
     });
 
     tray.on('drag-leave', () => {
-      tray.setImage(getIconPath());
+      tray.setImage(getIconPath(false));
     });
 
     tray.on('drag-end', () => {
-      tray.setImage(getIconPath());
+      tray.setImage(getIconPath(false));
     });
 
     tray.on('drop-text', (event: Event, text: string) => {
@@ -117,13 +118,40 @@ export default {
       },
       ...getMenuItems()
     ]));
+  },
+
+  startAnimation: (): void => {
+    const frames = [
+      getIconPath(true),
+      path.join(__dirname, '..', 'static', 'iconFrame01Template.png'),
+      path.join(__dirname, '..', 'static', 'iconFrame02Template.png'),
+      path.join(__dirname, '..', 'static', 'iconFrame03Template.png')
+    ];
+
+    if (animation === null) {
+      (function animate(frames) {
+        animation = setTimeout(() => {
+          tray.setImage(frames[0]);
+          frames.push(frames.shift());
+
+          animate(frames);
+        }, 400)
+      })(frames);
+    }
+  },
+
+  stopAnimation: (isIdle: boolean): void => {
+    if (animation !== null) {
+      clearTimeout(animation);
+      animation = null;
+
+      tray.setImage(getIconPath(isIdle));
+    }
   }
 }
 
-function getIconPath(): string {
-  return path.join(__dirname, '..', 'static', 'iconTemplate.png');
-}
-
-function getDropIconPath(): string {
-  return path.join(__dirname, '..', 'static', 'iconDropTemplate.png');
+function getIconPath(isIdle: boolean): string {
+  return isIdle ?
+    path.join(__dirname, '..', 'static', 'iconIdleTemplate.png') :
+    path.join(__dirname, '..', 'static', 'iconTemplate.png');
 }

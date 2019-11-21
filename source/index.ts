@@ -56,6 +56,7 @@ function createHiddenWindow(): BrowserWindow {
   createAppMenu();
   hiddenWindow = createHiddenWindow();
   tray.create(hiddenWindow);
+  tray.startAnimation();
 
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
     const slaTickets = tickets
@@ -128,6 +129,14 @@ function createHiddenWindow(): BrowserWindow {
 
   const { webContents } = hiddenWindow;
 
+  webContents.on('did-start-loading', () => {
+    tray.startAnimation();
+  });
+
+  webContents.on('did-fail-load', () => {
+    tray.stopAnimation(true);
+  });
+
   webContents.on('dom-ready', async () => {
     const url = webContents.getURL();
 
@@ -161,6 +170,8 @@ function createHiddenWindow(): BrowserWindow {
     await webContents.executeJavaScript(
       readFileSync(path.join(__dirname, 'tickets-isolated.js'), 'utf8')
     );
+
+    tray.stopAnimation(false);
   });
 
   webContents.on('will-navigate', (event, url) => {
