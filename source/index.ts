@@ -33,6 +33,18 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 }
 
+function blockNotifications(): void {
+  session.defaultSession.setPermissionRequestHandler(
+    (webContents, permission, callback) => {
+      if (permission === 'notifications') {
+        return callback(false);
+      }
+
+      callback(true);
+    }
+  );
+}
+
 function createHiddenWindow(): BrowserWindow {
   const folderURL = config.get('mailboxFolderURL');
 
@@ -44,6 +56,8 @@ function createHiddenWindow(): BrowserWindow {
       contextIsolation: true
     }
   });
+
+  blockNotifications();
 
   win.loadURL(folderURL);
 
