@@ -11,11 +11,13 @@ import selectors from './selectors';
 ipcRenderer.on('log-out', async () => {
   config.reset('mailboxFolderURL');
 
-  document.querySelector<HTMLElement>('.c-AccountDropdownToggle')!.click();
+  document.querySelector<HTMLElement>(selectors.accountDropdown)!.click();
 
-  const logOut: HTMLElement = await elementReady<HTMLElement>('#jsLogout', {
-    stopOnDomReady: false
-  });
+  const logOut: HTMLElement = await elementReady<HTMLElement>(
+    selectors.logOutMenuItem, {
+      stopOnDomReady: false
+    }
+  );
   logOut.click();
 });
 
