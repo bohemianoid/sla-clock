@@ -6,6 +6,7 @@ import {
   set
 } from 'date-fns';
 import {
+  BrowserWindow,
   NativeImage,
   nativeImage
 } from 'electron';
@@ -14,7 +15,10 @@ import tray from './tray';
 
 let sla: Date;
 
-const cronJob = new cron.CronJob('0 * * * * *', updateClock);
+const cronJob = new cron.CronJob('0 * * * * *', () => {
+  const [win] = BrowserWindow.getAllWindows();
+  win.webContents.send('send-mailbox-content');
+});
 
 export function formatTimer(sla: Date): string {
   const now = set(new Date(), {
