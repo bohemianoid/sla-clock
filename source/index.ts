@@ -49,8 +49,6 @@ function blockNotifications(): void {
 }
 
 function createHiddenWindow(): BrowserWindow {
-  const folderURL = config.get('mailboxFolderURL');
-
   const win = new BrowserWindow({
     title: app.name,
     show: false,
@@ -62,7 +60,7 @@ function createHiddenWindow(): BrowserWindow {
 
   blockNotifications();
 
-  win.loadURL(folderURL);
+  win.loadURL(config.get('mailboxFolderURL'));
 
   return win;
 }
@@ -150,6 +148,10 @@ function createHiddenWindow(): BrowserWindow {
     );
     tray.addMenuItems([
       {
+        label: hiddenWindow.getTitle().split(' - ')[0],
+        enabled: false
+      },
+      {
         label: huzzah.body,
         enabled: Boolean(huzzah.url),
         click() {
@@ -209,7 +211,7 @@ function createHiddenWindow(): BrowserWindow {
       tray.stopAnimation(true);
       tray.addMenuItems([
         {
-          label: 'Drop Mailbox Folder',
+          label: 'Drop a mailbox folder up here.',
           enabled: false
         }
       ]);
@@ -241,7 +243,7 @@ function createHiddenWindow(): BrowserWindow {
     if (isDashboard(url)) {
       tray.addMenuItems([
         {
-          label: 'Drop Mailbox Folder',
+          label: 'Drop a mailbox folder up here.',
           enabled: false
         }
       ]);

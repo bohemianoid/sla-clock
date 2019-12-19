@@ -32,7 +32,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
       checked: config.get('timerView'),
       click(menuItem) {
         config.set('timerView', menuItem.checked);
-        updateClock()
+        updateClock();
         tray.updateMenu();
         updateMenu();
 
