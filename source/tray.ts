@@ -111,6 +111,10 @@ export default {
     tray.setTitle(title);
   },
 
+  setIcon: (isIdle: boolean): void => {
+    tray.setImage(getIconPath(isIdle));
+  },
+
   updateMenu: (): void => {
     tray.setContextMenu(getContextMenu(getMenuItems()));
   },

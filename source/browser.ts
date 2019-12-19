@@ -8,6 +8,8 @@ import elementReady = require('element-ready');
 import config from './config';
 import selectors from './selectors';
 
+let isOnline = true;
+
 ipcRenderer.on('log-out', async () => {
   config.reset('mailboxFolderURL');
 
@@ -117,6 +119,7 @@ ipcRenderer.on('send-mailbox-content', sendMailboxContent);
 
 window.addEventListener('load', async () => {
   const mailbox = document.querySelector<HTMLElement>('#mainCol');
+  const offlineUI = document.querySelector<HTMLElement>('.offline-ui');
 
   if (mailbox) {
     await sendMailboxContent();
@@ -127,6 +130,29 @@ window.addEventListener('load', async () => {
       childList: true,
       characterData: true,
       subtree: true
+    });
+  }
+
+  if (offlineUI) {
+    const offlineObserver = new MutationObserver(() => {
+      if (
+        offlineUI.classList.contains('offline-ui-down')
+        && isOnline === true
+      ) {
+        isOnline = false;
+        ipcRenderer.send('is-offline');
+      } else if (
+        offlineUI.classList.contains('offline-ui-up')
+        && isOnline === false
+      ) {
+        isOnline = true;
+        ipcRenderer.send('is-online');
+      }
+    });
+
+    offlineObserver.observe(offlineUI, {
+      attributes: true,
+      attributeFilter: ['class']
     });
   }
 });

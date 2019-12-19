@@ -14,6 +14,8 @@ import {
   shell
 } from 'electron';
 import debug = require('electron-debug');
+import isOnline from 'is-online';
+import pWaitFor from 'p-wait-for';
 import {
   formatTimer,
   getStatusIcon,
@@ -72,6 +74,20 @@ function createHiddenWindow(): BrowserWindow {
   hiddenWindow = createHiddenWindow();
   tray.create(hiddenWindow);
   tray.startAnimation();
+
+  if (!(await isOnline())) {
+    tray.stopAnimation(true);
+    tray.addMenuItems([
+      {
+        label: 'You appear to be offline.',
+        enabled: false
+      }
+    ]);
+
+    await pWaitFor(isOnline, {interval: 1000});
+    hiddenWindow.loadURL(config.get('mailboxFolderURL'));
+    tray.startAnimation();
+  }
 
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
     const slaTickets = tickets
@@ -143,6 +159,21 @@ function createHiddenWindow(): BrowserWindow {
     ]);
   });
 
+  ipcMain.on('is-offline', (event: Event) => {
+    tray.setTitle('')
+    tray.setIcon(true);
+    tray.addMenuItems([
+      {
+        label: 'You appear to be offline.',
+        enabled: false
+      }
+    ]);
+  });
+
+  ipcMain.on('is-online', (event: Event) => {
+    tray.setIcon(false);
+  });
+
   const { webContents } = hiddenWindow;
 
   webContents.on('did-start-loading', () => {
@@ -175,6 +206,7 @@ function createHiddenWindow(): BrowserWindow {
     }
 
     if (isDashboard(url)) {
+      tray.stopAnimation(true);
       tray.addMenuItems([
         {
           label: 'Drop Mailbox Folder',
