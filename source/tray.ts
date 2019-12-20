@@ -7,8 +7,7 @@ import {
   Tray
 } from 'electron'
 import {
-  is,
-  showAboutWindow
+  is
 } from 'electron-util';
 import isURL = require('is-url-superb');
 import config from './config';
@@ -45,12 +44,6 @@ function getMenuItems(): MenuItemConstructorOptions[] {
     {
       role: 'help',
       submenu: helpSubmenu
-    },
-    {
-      label: 'About',
-      click() {
-        showAboutWindow({});
-      }
     }
   ];
 
