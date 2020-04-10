@@ -103,14 +103,16 @@ async function createHuzzahMessage(): Promise<Huzzah> {
 }
 
 async function sendMailboxContent(): Promise<void> {
+  if (isOnline === false) {
+    return;
+  }
+
   const ticketTable = document.querySelector<HTMLElement>('#tblTickets');
   const emptyFolder = document.querySelector<HTMLElement>('#emptyFolder');
 
   if (ticketTable) {
     window.postMessage({type: 'post-tickets'}, '*');
-  }
-
-  if (emptyFolder) {
+  } else if (emptyFolder) {
     ipcRenderer.send('huzzah', await createHuzzahMessage());
   }
 }
