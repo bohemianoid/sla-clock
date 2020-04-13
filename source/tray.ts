@@ -6,9 +6,7 @@ import {
   MenuItemConstructorOptions,
   Tray
 } from 'electron'
-import {
-  is
-} from 'electron-util';
+import { is } from 'electron-util';
 import isURL = require('is-url-superb');
 import config from './config';
 import {
@@ -22,6 +20,7 @@ import {
 } from './menu';
 
 let tray: Tray | null = null;
+let isIdle = false;
 let animation: NodeJS.Timer | null = null;
 
 function getMenuItems(): MenuItemConstructorOptions[] {
@@ -77,21 +76,21 @@ export default {
       return;
     }
 
-    tray = new Tray(getIconPath(false));
+    tray = new Tray(getIconPath(isIdle));
     tray.setContextMenu(getContextMenu(getMenuItems()));
 
     app.dock.hide();
 
     tray.on('drag-enter', () => {
-      tray.setImage(getIconPath(true));
+      tray.setImage(getIconPath(!isIdle));
     });
 
     tray.on('drag-leave', () => {
-      tray.setImage(getIconPath(false));
+      tray.setImage(getIconPath(isIdle));
     });
 
     tray.on('drag-end', () => {
-      tray.setImage(getIconPath(false));
+      tray.setImage(getIconPath(isIdle));
     });
 
     tray.on('drop-text', (event: Event, text: string) => {
@@ -106,8 +105,9 @@ export default {
     tray.setTitle(title);
   },
 
-  setIcon: (isIdle: boolean): void => {
-    tray.setImage(getIconPath(isIdle));
+  setIcon: (idle: boolean): void => {
+    tray.setImage(getIconPath(idle));
+    isIdle = idle;
   },
 
   updateMenu: (): void => {
@@ -144,18 +144,19 @@ export default {
     }
   },
 
-  stopAnimation: (isIdle: boolean): void => {
+  stopAnimation: (idle: boolean): void => {
     if (animation !== null) {
       clearTimeout(animation);
       animation = null;
 
-      tray.setImage(getIconPath(isIdle));
+      tray.setImage(getIconPath(idle));
+      isIdle = idle;
     }
   }
 }
 
-function getIconPath(isIdle: boolean): string {
-  return isIdle ?
+function getIconPath(idle: boolean): string {
+  return idle ?
     path.join(__dirname, '..', 'static', 'iconIdleTemplate.png') :
     path.join(__dirname, '..', 'static', 'iconTemplate.png');
 }

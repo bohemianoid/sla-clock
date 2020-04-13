@@ -14,6 +14,7 @@ import {
   shell
 } from 'electron';
 import debug = require('electron-debug');
+import { enforceMacOSAppLocation } from 'electron-util';
 import isOnline from 'is-online';
 import pWaitFor from 'p-wait-for';
 import {
@@ -52,6 +53,7 @@ function createHiddenWindow(): BrowserWindow {
   const win = new BrowserWindow({
     title: app.name,
     show: false,
+    alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'browser.js'),
       contextIsolation: true
@@ -67,6 +69,8 @@ function createHiddenWindow(): BrowserWindow {
 
 (async () => {
   await app.whenReady();
+
+  enforceMacOSAppLocation();
 
   createAppMenu();
   hiddenWindow = createHiddenWindow();
@@ -172,8 +176,8 @@ function createHiddenWindow(): BrowserWindow {
     ]);
   });
 
-  ipcMain.on('is-online', (event: Event) => {
-    tray.setIcon(false);
+  ipcMain.on('is-online', () => {
+    hiddenWindow.reload();
   });
 
   const { webContents } = hiddenWindow;
