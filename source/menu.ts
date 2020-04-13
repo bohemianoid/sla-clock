@@ -13,6 +13,7 @@ import {
   openNewGitHubIssue,
   openUrlMenuItem
 } from 'electron-util';
+import checkUpdate from './check-update';
 import { updateClock } from './clock';
 import config from './config';
 import tray from './tray';
@@ -143,6 +144,13 @@ ${debugInfo()}`;
   }
 ];
 
+export const checkUpdateMenuItem: MenuItemConstructorOptions = {
+  label: 'Check for Update',
+  click() {
+    checkUpdate();
+  }
+};
+
 export const debugSubmenu: MenuItemConstructorOptions[] = [
   {
     label: 'Show Settings',
@@ -189,6 +197,7 @@ export default function updateMenu(): Menu {
           ...getPreferencesSubmenu()
         ]
       },
+      checkUpdateMenuItem,
       {
         type: 'separator'
       },

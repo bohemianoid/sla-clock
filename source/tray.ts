@@ -12,6 +12,7 @@ import {
 import isURL = require('is-url-superb');
 import config from './config';
 import {
+  checkUpdateMenuItem,
   debugSubmenu,
   getPreferencesSubmenu,
   getQuickPreferencesSubmenu,
@@ -41,6 +42,7 @@ function getMenuItems(): MenuItemConstructorOptions[] {
       label: 'Preferences',
       submenu: getPreferencesSubmenu()
     },
+    checkUpdateMenuItem,
     {
       role: 'help',
       submenu: helpSubmenu
