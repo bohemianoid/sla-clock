@@ -14,7 +14,7 @@ import {
   shell
 } from 'electron';
 import debug = require('electron-debug');
-// import { enforceMacOSAppLocation } from 'electron-util';
+import { enforceMacOSAppLocation } from 'electron-util';
 import isOnline from 'is-online';
 import pWaitFor from 'p-wait-for';
 import {
@@ -71,7 +71,7 @@ function createHiddenWindow(): BrowserWindow {
 (async () => {
   await app.whenReady();
 
-  // enforceMacOSAppLocation();
+  enforceMacOSAppLocation();
 
   createAppMenu();
   hiddenWindow = createHiddenWindow();
