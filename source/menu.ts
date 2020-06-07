@@ -17,6 +17,7 @@ import checkUpdate from './check-update';
 import { updateClock } from './clock';
 import config from './config';
 import tray from './tray';
+import { sendAction } from './util';
 
 export const helpScoutMenuItem: MenuItemConstructorOptions =
   openUrlMenuItem({
