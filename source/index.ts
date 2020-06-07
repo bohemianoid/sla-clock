@@ -255,3 +255,12 @@ function createHiddenWindow(): BrowserWindow {
     }
   });
 })();
+
+ipcMain.handle('config-get', (event, key) => {
+	return config.get(key);
+});
+
+ipcMain.handle('config-reset', (event, key) => {
+  config.reset(key);
+	return;
+});
