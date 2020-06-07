@@ -20,6 +20,10 @@ const cronJob = new cron.CronJob('0 * * * * *', () => {
 cronJob.start();
 
 export function formatTimer(sla: Date): string {
+  sla = set(sla, {
+    seconds: 0,
+    milliseconds: 0
+  });
   const now = set(new Date(), {
     seconds: 0,
     milliseconds: 0
@@ -63,11 +67,6 @@ export function getStatusIcon(sla: Date): NativeImage {
 }
 
 export function updateClock(sla: Date): void {
-  sla = set(sla, {
-    seconds: 0,
-    milliseconds: 0
-  });
-
   tray.setIdle(false);
 
   if (config.get('hideClock')) {
