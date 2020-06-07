@@ -6,8 +6,6 @@ import { ipcRenderer } from 'electron';
 import elementReady = require('element-ready');
 import selectors from './selectors';
 
-let isOnline = true;
-
 ipcRenderer.on('log-out', async () => {
   document.querySelector<HTMLElement>(selectors.accountDropdown)!.click();
 
@@ -107,33 +105,20 @@ async function createHuzzahMessage(): Promise<Huzzah> {
   return huzzah as Huzzah;
 }
 
-async function sendMailboxContent(): Promise<void> {
-  if (isOnline === false) {
-    return;
-  }
-
-  const ticketTable = document.querySelector<HTMLElement>('#tblTickets');
-  const emptyFolder = document.querySelector<HTMLElement>('#emptyFolder');
-
-  if (ticketTable) {
-    window.postMessage({type: 'post-tickets'}, '*');
-  } else if (emptyFolder) {
-    ipcRenderer.send('huzzah', await createHuzzahMessage());
-  }
+function sendTicketList(): void {
+  window.postMessage({type: 'send-tickets'}, '*');
 }
 
-ipcRenderer.on('send-mailbox-content', sendMailboxContent);
+ipcRenderer.on('send-ticket-list', sendTicketList);
 
 window.addEventListener('load', async () => {
   const mailbox = document.querySelector<HTMLElement>('#mainCol');
   const offlineUI = document.querySelector<HTMLElement>('.offline-ui');
 
   if (mailbox) {
-    await sendMailboxContent();
+    const ticketListObserver = new MutationObserver(sendTicketList);
 
-    const mailboxContentObserver = new MutationObserver(sendMailboxContent);
-
-    mailboxContentObserver.observe(mailbox, {
+    ticketListObserver.observe(mailbox, {
       childList: true,
       characterData: true,
       subtree: true
@@ -142,18 +127,8 @@ window.addEventListener('load', async () => {
 
   if (offlineUI) {
     const offlineObserver = new MutationObserver(() => {
-      if (
-        offlineUI.classList.contains('offline-ui-down')
-        && isOnline === true
-      ) {
-        isOnline = false;
+      if (offlineUI.classList.contains('offline-ui-down')) {
         ipcRenderer.send('is-offline');
-      } else if (
-        offlineUI.classList.contains('offline-ui-up')
-        && isOnline === false
-      ) {
-        isOnline = true;
-        ipcRenderer.send('is-online');
       }
     });
 
@@ -164,8 +139,12 @@ window.addEventListener('load', async () => {
   }
 });
 
-window.addEventListener('message', ({ data: { type, data }}) => {
+window.addEventListener('message', async ({ data: { type, data }}) => {
   if (type === 'tickets') {
-    ipcRenderer.send('tickets', createTicketList(data));
+    ipcRenderer.send('tickets', await createTicketList(data));
+  }
+
+  if (type === 'huzzah') {
+    ipcRenderer.send('huzzah', await createHuzzahMessage());
   }
 });

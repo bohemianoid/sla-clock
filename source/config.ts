@@ -19,7 +19,7 @@ type StoreType = {
 const schema: {[Key in keyof StoreType]: Store.Schema} = {
   mailboxFolderURL: {
     type: 'string',
-    default: 'https://secure.helpscout.net/'
+    default: 'https://secure.helpscout.net/dashboard/'
   },
   timerView: {
     type: 'boolean',

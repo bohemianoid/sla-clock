@@ -19,7 +19,7 @@ import {
   logOutMenuItem
 } from './menu';
 
-let tray: Tray | null = null;
+let tray: Tray | undefined;
 let isIdle = false;
 let animation: NodeJS.Timer | null = null;
 
@@ -71,7 +71,7 @@ function getContextMenu(menuItems: MenuItemConstructorOptions[]): Menu {
 }
 
 export default {
-  create: (win: BrowserWindow): void => {
+  create: (win: BrowserWindow) => {
     if (tray) {
       return;
     }
@@ -101,20 +101,16 @@ export default {
     });
   },
 
-  setTitle: (title: string): void => {
+  setTitle: (title: string) => {
     tray.setTitle(title);
   },
 
-  setIcon: (idle: boolean): void => {
+  setIdle: (idle: boolean) => {
     tray.setImage(getIconPath(idle));
     isIdle = idle;
   },
 
-  updateMenu: (): void => {
-    tray.setContextMenu(getContextMenu(getMenuItems()));
-  },
-
-  addMenuItems: (menuItems: MenuItemConstructorOptions[]): void => {
+  updateMenu: (menuItems: MenuItemConstructorOptions[]) => {
     tray.setContextMenu(getContextMenu([
       ...menuItems,
       {
@@ -124,7 +120,7 @@ export default {
     ]));
   },
 
-  startAnimation: (): void => {
+  startAnimation: () => {
     const frames = [
       getIconPath(true),
       path.join(__dirname, '..', 'static', 'iconFrame01Template.png'),
@@ -144,19 +140,16 @@ export default {
     }
   },
 
-  stopAnimation: (idle: boolean): void => {
+  stopAnimation: () => {
     if (animation !== null) {
       clearTimeout(animation);
       animation = null;
-
-      tray.setImage(getIconPath(idle));
-      isIdle = idle;
     }
   }
 }
 
 function getIconPath(idle: boolean): string {
-  return idle ?
-    path.join(__dirname, '..', 'static', 'iconIdleTemplate.png') :
-    path.join(__dirname, '..', 'static', 'iconTemplate.png');
+  const icon = idle ? 'iconIdleTemplate.png' : 'iconTemplate.png';
+
+  return path.join(__dirname, '..', 'static', icon);
 }

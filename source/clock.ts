@@ -12,13 +12,12 @@ import {
 } from 'electron';
 import config from './config';
 import tray from './tray';
-
-let sla: Date;
 import { sendAction } from './util';
 
 const cronJob = new cron.CronJob('0 * * * * *', () => {
   sendAction('send-ticket-list');
 });
+cronJob.start();
 
 export function formatTimer(sla: Date): string {
   const now = set(new Date(), {
@@ -63,31 +62,19 @@ export function getStatusIcon(sla: Date): NativeImage {
            .resize({width: 12});
 }
 
-export function updateClock(date?: Date): void {
-  if (date) {
-    sla = set(date, {
-      seconds: 0,
-      milliseconds: 0
-    });
+export function updateClock(sla: Date): void {
+  sla = set(sla, {
+    seconds: 0,
+    milliseconds: 0
+  });
+
+  tray.setIdle(false);
+
+  if (config.get('hideClock')) {
+    tray.setTitle('');
+  } else {
+    tray.setTitle(config.get('timerView')
+                  ? formatTimer(sla)
+                  : format(sla, 'HH:mm'));
   }
-
-  if (sla) {
-    if (config.get('hideClock')) {
-      tray.setTitle('');
-    } else {
-      tray.setTitle(config.get('timerView')
-                    ? formatTimer(sla)
-                    : format(sla, 'HH:mm'));
-    }
-
-    if (config.get('timerView') || !cronJob.running) {
-      cronJob.start();
-    } else {
-      cronJob.stop();
-    }
-  }
-}
-
-export function stopClock(): void {
-  cronJob.stop();
 }

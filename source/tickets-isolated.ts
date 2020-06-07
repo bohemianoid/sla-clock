@@ -12,7 +12,7 @@
     }
   }
 
-  function postTickets(): void {
+  function sendTickets(): void {
     if (window.App) {
       if (window.App.convos) {
         const convos = window.App.convos.models;
@@ -22,16 +22,20 @@
             type: 'tickets',
             data: JSON.parse(JSON.stringify(convos))
           }, '*');
+        } else {
+          window.postMessage({
+            type: 'huzzah'
+          }, '*');
         }
       }
     }
   }
 
   window.addEventListener('message', ({ data: { type } }) => {
-    if (type === 'post-tickets') {
-      postTickets();
+    if (type === 'send-tickets') {
+      sendTickets();
     }
   });
 
-  postTickets();
+  sendTickets();
 })(window);

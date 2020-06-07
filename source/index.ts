@@ -1,12 +1,6 @@
 import { readFileSync } from 'fs';
 import * as path from 'path';
 import {
-  addDays,
-  addHours,
-  min,
-  set
-} from 'date-fns';
-import {
   app,
   BrowserWindow,
   ipcMain,
@@ -20,7 +14,6 @@ import pWaitFor from 'p-wait-for';
 import {
   formatTimer,
   getStatusIcon,
-  stopClock,
   updateClock
 } from './clock';
 import config from './config';
@@ -49,11 +42,64 @@ function blockNotifications(): void {
   );
 }
 
+function updateTray(url: string): void {
+  const isLogin = (url: string): boolean => {
+    const loginURL = 'https://secure.helpscout.net/members/login';
+    return url.startsWith(loginURL);
+  };
+
+  const isDashboard = (url: string): boolean => {
+    const dashboardURL = 'https://secure.helpscout.net/dashboard/';
+    return url.startsWith(dashboardURL);
+  }
+
+  const isMailbox = (url: string): boolean => {
+    const mailboxURL = 'https://secure.helpscout.net/mailbox';
+    return url.startsWith(mailboxURL);
+  }
+
+  if (isLogin(url)) {
+    tray.setTitle('');
+    tray.updateMenu([]);
+    app.dock.show();
+    hiddenWindow.show();
+  }
+
+  if (isDashboard(url) || isMailbox(url)) {
+    hiddenWindow.hide();
+    app.dock.hide();
+  }
+
+  if (isDashboard(url)) {
+    tray.updateMenu([
+      {
+        label: 'Drop a mailbox folder up here.',
+        enabled: false
+      }
+    ]);
+  }
+}
+
+async function offlineTray(): Promise<void> {
+  tray.stopAnimation();
+  tray.setIdle(true);
+  tray.setTitle('');
+  tray.updateMenu([
+    {
+      label: 'You appear to be offline.',
+      enabled: false
+    }
+  ]);
+
+  await pWaitFor(isOnline, {interval: 1000});
+  hiddenWindow.loadURL(config.get('mailboxFolderURL'));
+  tray.startAnimation();
+}
+
 function createHiddenWindow(): BrowserWindow {
   const win = new BrowserWindow({
     title: app.name,
     show: false,
-    alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'browser.js'),
       enableRemoteModule: false,
@@ -79,17 +125,7 @@ function createHiddenWindow(): BrowserWindow {
   tray.startAnimation();
 
   if (!(await isOnline())) {
-    tray.stopAnimation(true);
-    tray.addMenuItems([
-      {
-        label: 'You appear to be offline.',
-        enabled: false
-      }
-    ]);
-
-    await pWaitFor(isOnline, {interval: 1000});
-    hiddenWindow.loadURL(config.get('mailboxFolderURL'));
-    tray.startAnimation();
+    await offlineTray();
   }
 
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
@@ -133,7 +169,7 @@ function createHiddenWindow(): BrowserWindow {
         }
       }
     });
-    tray.addMenuItems([
+    tray.updateMenu([
       {
         label: hiddenWindow.getTitle().split(' - ')[0],
         enabled: false
@@ -145,13 +181,13 @@ function createHiddenWindow(): BrowserWindow {
   ipcMain.on('huzzah', (event: Event, huzzah: Huzzah) => {
     console.log(huzzah);
 
-    stopClock();
+    tray.setIdle(false);
     tray.setTitle(
       config.get('hideClock')
       ? ''
       : `${huzzah.title.charAt(0)}${huzzah.title.slice(1).toLowerCase()}`
     );
-    tray.addMenuItems([
+    tray.updateMenu([
       {
         label: hiddenWindow.getTitle().split(' - ')[0],
         enabled: false
@@ -166,19 +202,8 @@ function createHiddenWindow(): BrowserWindow {
     ]);
   });
 
-  ipcMain.on('is-offline', (event: Event) => {
-    tray.setTitle('')
-    tray.setIcon(true);
-    tray.addMenuItems([
-      {
-        label: 'You appear to be offline.',
-        enabled: false
-      }
-    ]);
-  });
-
-  ipcMain.on('is-online', () => {
-    hiddenWindow.reload();
+  ipcMain.on('is-offline', async (event: Event) => {
+    await offlineTray();
   });
 
   const { webContents } = hiddenWindow;
@@ -187,72 +212,21 @@ function createHiddenWindow(): BrowserWindow {
     tray.startAnimation();
   });
 
-  webContents.on('did-fail-load', () => {
-    tray.stopAnimation(true);
-  });
-
   webContents.on('dom-ready', async () => {
     const url = webContents.getURL();
 
-    const isLogin = (url: string): boolean => {
-      const loginURL = 'https://secure.helpscout.net/members/login';
-      return url.startsWith(loginURL);
-    };
-
-    const isDashboard = (url: string): boolean => {
-      const dashboardURL = 'https://secure.helpscout.net/';
-      return url === dashboardURL;
-    }
-
-    if (isLogin(url)) {
-      stopClock();
-      tray.setTitle('');
-      tray.addMenuItems([]);
-      app.dock.show();
-      hiddenWindow.show();
-    }
-
-    if (isDashboard(url)) {
-      tray.stopAnimation(true);
-      tray.addMenuItems([
-        {
-          label: 'Drop a mailbox folder up here.',
-          enabled: false
-        }
-      ]);
-    }
+    updateTray(url);
 
     await webContents.executeJavaScript(
       readFileSync(path.join(__dirname, 'tickets-isolated.js'), 'utf8')
     );
 
-    tray.stopAnimation(false);
+    tray.stopAnimation();
+    tray.setIdle(true);
   });
 
   webContents.on('will-navigate', (event, url) => {
-    const isDashboard = (url: string): boolean => {
-      const dashboardURL = 'https://secure.helpscout.net/dashboard/';
-      return url.startsWith(dashboardURL);
-    }
-
-    const isMailbox = (url: string): boolean => {
-      const mailboxURL = 'https://secure.helpscout.net/mailbox';
-      return url.startsWith(mailboxURL);
-    }
-
-    if (isDashboard(url) || isMailbox(url)) {
-      hiddenWindow.hide();
-      app.dock.hide();
-    }
-
-    if (isDashboard(url)) {
-      tray.addMenuItems([
-        {
-          label: 'Drop a mailbox folder up here.',
-          enabled: false
-        }
-      ]);
-    }
+    updateTray(url);
   });
 })();
 
