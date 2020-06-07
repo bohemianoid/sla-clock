@@ -14,7 +14,7 @@ import {
   debugSubmenu,
   getPreferencesSubmenu,
   getQuickPreferencesSubmenu,
-  helpScoutMenuItem,
+  getHelpScoutMenuItem,
   helpSubmenu,
   logOutMenuItem
 } from './menu';
@@ -25,7 +25,7 @@ let animation: NodeJS.Timer | null = null;
 
 function getMenuItems(): MenuItemConstructorOptions[] {
   const menuItems = [
-    helpScoutMenuItem,
+    getHelpScoutMenuItem(),
     {
       type: 'separator'
     },

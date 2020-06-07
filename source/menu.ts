@@ -19,11 +19,12 @@ import config from './config';
 import tray from './tray';
 import { sendAction } from './util';
 
-export const helpScoutMenuItem: MenuItemConstructorOptions =
-  openUrlMenuItem({
+export function getHelpScoutMenuItem(): MenuItemConstructorOptions {
+  return openUrlMenuItem({
     label: 'Open Help Scout',
     url: config.get('mailboxFolderURL')
   });
+}
 
 export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
   return [
@@ -191,7 +192,7 @@ export default function updateMenu(): Menu {
       {
         type: 'separator'
       },
-      helpScoutMenuItem,
+      getHelpScoutMenuItem(),
       logOutMenuItem
     ]),
     {
