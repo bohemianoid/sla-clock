@@ -14,10 +14,10 @@ import config from './config';
 import tray from './tray';
 
 let sla: Date;
+import { sendAction } from './util';
 
 const cronJob = new cron.CronJob('0 * * * * *', () => {
-  const [win] = BrowserWindow.getAllWindows();
-  win.webContents.send('send-mailbox-content');
+  sendAction('send-ticket-list');
 });
 
 export function formatTimer(sla: Date): string {

@@ -36,9 +36,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
         updateClock();
         tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     },
     {
@@ -51,9 +49,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
         updateClock();
         tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     },
     {
@@ -65,9 +61,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
         updateClock();
         tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     }
   ];
@@ -84,9 +78,7 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
         updateClock();
         tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     },
     {
@@ -99,9 +91,7 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
         });
         tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     }
   ];
@@ -110,8 +100,7 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
 export const logOutMenuItem: MenuItemConstructorOptions = {
   label: 'Log Out',
   click() {
-    const [ win ] = BrowserWindow.getAllWindows();
-    win.webContents.send('log-out');
+    sendAction('log-out');
   }
 };
 
