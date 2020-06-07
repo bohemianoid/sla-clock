@@ -56,6 +56,7 @@ function createHiddenWindow(): BrowserWindow {
     alwaysOnTop: true,
     webPreferences: {
       preload: path.join(__dirname, 'browser.js'),
+      enableRemoteModule: false,
       contextIsolation: true
     }
   });
