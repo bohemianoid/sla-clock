@@ -124,10 +124,6 @@ function createHiddenWindow(): BrowserWindow {
   tray.create(hiddenWindow);
   tray.startAnimation();
 
-  if (!(await isOnline())) {
-    await offlineTray();
-  }
-
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
     const slaTickets = tickets
                          .filter(({ status }) => {
@@ -212,6 +208,10 @@ function createHiddenWindow(): BrowserWindow {
     tray.startAnimation();
   });
 
+  webContents.on('did-fail-load', async () => {
+    await offlineTray();
+  });
+
   webContents.on('dom-ready', async () => {
     const url = webContents.getURL();
 
@@ -227,6 +227,10 @@ function createHiddenWindow(): BrowserWindow {
 
   webContents.on('will-navigate', (event, url) => {
     updateTray(url);
+  });
+
+  webContents.on('page-title-updated', () => {
+    webContents.send('send-ticket-list');
   });
 })();
 
