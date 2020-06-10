@@ -59,6 +59,8 @@ function updateTray(url: string): void {
   }
 
   if (isLogin(url)) {
+    tray.stopAnimation();
+    tray.setIdle(true);
     tray.setTitle('');
     tray.updateMenu([]);
     app.dock.show();
@@ -71,6 +73,8 @@ function updateTray(url: string): void {
   }
 
   if (isDashboard(url)) {
+    tray.stopAnimation();
+    tray.setIdle(true);
     tray.updateMenu([
       {
         label: 'Drop a mailbox folder up here.',
@@ -146,6 +150,9 @@ function createHiddenWindow(): BrowserWindow {
 
     console.log(slaTickets);
 
+    tray.stopAnimation();
+    tray.setIdle(false);
+
     if (slaTickets.length) {
       updateClock(slaTickets[0].sla);
     } else {
@@ -177,6 +184,7 @@ function createHiddenWindow(): BrowserWindow {
   ipcMain.on('huzzah', (event: Event, huzzah: Huzzah) => {
     console.log(huzzah);
 
+    tray.stopAnimation();
     tray.setIdle(false);
     tray.setTitle(
       config.get('hideClock')
@@ -220,9 +228,6 @@ function createHiddenWindow(): BrowserWindow {
     await webContents.executeJavaScript(
       readFileSync(path.join(__dirname, 'tickets-isolated.js'), 'utf8')
     );
-
-    tray.stopAnimation();
-    tray.setIdle(true);
   });
 
   webContents.on('will-navigate', (event, url) => {
