@@ -15,6 +15,11 @@
   function sendTickets(): void {
     if (window.App) {
       if (window.App.convos) {
+        if (window.App.convos.isOutOfSyncAtFetchTime) {
+          window.location.reload();
+          return;
+        }
+
         const convos = window.App.convos.models;
 
         if (Object.entries(convos).length) {
