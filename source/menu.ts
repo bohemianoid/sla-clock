@@ -4,6 +4,7 @@ import {
   MenuItemConstructorOptions,
   shell
 } from 'electron';
+import debug = require('electron-debug');
 import {
   appMenu,
   debugInfo,
@@ -13,7 +14,10 @@ import {
 } from 'electron-util';
 import checkUpdate from './check-update';
 import config from './config';
-import { sendAction } from './util';
+import {
+  getWindow,
+  sendAction
+} from './util';
 
 export function getHelpScoutMenuItem(): MenuItemConstructorOptions {
   return openUrlMenuItem({
@@ -130,6 +134,21 @@ export const checkUpdateMenuItem: MenuItemConstructorOptions = {
 };
 
 export const debugSubmenu: MenuItemConstructorOptions[] = [
+  {
+    label: 'Open DevTools',
+    click() {
+      debug.openDevTools(getWindow());
+    }
+  },
+  {
+    type: 'separator'
+  },
+  {
+    label: 'Show Window',
+    click() {
+      getWindow().show();
+    }
+  },
   {
     label: 'Show Settings',
     click() {

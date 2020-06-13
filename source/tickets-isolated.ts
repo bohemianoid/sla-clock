@@ -13,6 +13,11 @@
   }
 
   function sendTickets(): void {
+    if (!window.App && window.appData) {
+      window.location.reload();
+      return;
+    }
+
     if (window.App) {
       if (window.App.convos) {
         if (window.App.convos.isOutOfSyncAtFetchTime) {

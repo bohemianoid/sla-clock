@@ -1,7 +1,6 @@
 import * as path from 'path';
 import {
   app,
-  BrowserWindow,
   Menu,
   MenuItemConstructorOptions,
   Tray
@@ -18,6 +17,7 @@ import {
   helpSubmenu,
   logOutMenuItem
 } from './menu';
+import { getWindow } from './util';
 
 let tray: Tray | undefined;
 let isIdle = false;
@@ -71,7 +71,7 @@ function getContextMenu(menuItems: MenuItemConstructorOptions[]): Menu {
 }
 
 export default {
-  create: (win: BrowserWindow) => {
+  create: () => {
     if (tray) {
       return;
     }
@@ -95,7 +95,7 @@ export default {
 
     tray.on('drop-text', (event: Event, text: string) => {
       if (isURL(text)) {
-        win.loadURL(text);
+        getWindow().loadURL(text);
         config.set('mailboxFolderURL', text);
       }
     });

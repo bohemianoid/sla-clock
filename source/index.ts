@@ -25,6 +25,7 @@ debug({
 });
 
 let hiddenWindow: BrowserWindow;
+let isOffline = false;
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -44,21 +45,26 @@ function blockNotifications(): void {
 
 function updateTray(url: string): void {
   const isLogin = (url: string): boolean => {
-    const loginURL = 'https://secure.helpscout.net/members/login';
+    const loginURL = 'https://secure.helpscout.net/members/login/';
     return url.startsWith(loginURL);
   };
 
+  const isTwoFactorAuth = (url: string): boolean => {
+    const twoFactorAuthURL = 'https://secure.helpscout.net/members/2fa/';
+    return url.startsWith(twoFactorAuthURL);
+  }
+
   const isDashboard = (url: string): boolean => {
-    const dashboardURL = 'https://secure.helpscout.net/dashboard/';
-    return url.startsWith(dashboardURL);
+    const dashboardURL = 'https://secure.helpscout.net/';
+    return url === dashboardURL;
   }
 
   const isMailbox = (url: string): boolean => {
-    const mailboxURL = 'https://secure.helpscout.net/mailbox';
+    const mailboxURL = 'https://secure.helpscout.net/mailbox/';
     return url.startsWith(mailboxURL);
   }
 
-  if (isLogin(url)) {
+  if (isLogin(url) || isTwoFactorAuth(url)) {
     tray.stopAnimation();
     tray.setIdle(true);
     tray.setTitle('');
@@ -85,19 +91,26 @@ function updateTray(url: string): void {
 }
 
 async function offlineTray(): Promise<void> {
-  tray.stopAnimation();
-  tray.setIdle(true);
-  tray.setTitle('');
-  tray.updateMenu([
-    {
-      label: 'You appear to be offline.',
-      enabled: false
-    }
-  ]);
+  if (!(await isOnline())) {
+    isOffline = true;
 
-  await pWaitFor(isOnline, {interval: 1000});
+    tray.stopAnimation();
+    tray.setIdle(true);
+    tray.setTitle('');
+    tray.updateMenu([
+      {
+        label: 'You appear to be offline.',
+        enabled: false
+      }
+    ]);
+
+    await pWaitFor(isOnline, {interval: 1000});
+    isOffline = false;
+
+    tray.startAnimation();
+  }
+
   hiddenWindow.loadURL(config.get('mailboxFolderURL'));
-  tray.startAnimation();
 }
 
 function createHiddenWindow(): BrowserWindow {
@@ -125,10 +138,15 @@ function createHiddenWindow(): BrowserWindow {
 
   createAppMenu();
   hiddenWindow = createHiddenWindow();
-  tray.create(hiddenWindow);
+  tray.create();
   tray.startAnimation();
+  await offlineTray();
 
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
+    if (isOffline) {
+      return;
+    }
+
     const slaTickets = tickets
                          .filter(({ status }) => {
                            if (config.get('filterPending')) {
@@ -182,6 +200,10 @@ function createHiddenWindow(): BrowserWindow {
   });
 
   ipcMain.on('huzzah', (event: Event, huzzah: Huzzah) => {
+    if (isOffline) {
+      return;
+    }
+
     console.log(huzzah);
 
     tray.stopAnimation();
