@@ -1,11 +1,10 @@
 import {
   app,
-  BrowserWindow,
-  ipcMain,
   Menu,
   MenuItemConstructorOptions,
   shell
 } from 'electron';
+import debug = require('electron-debug');
 import {
   appMenu,
   debugInfo,
@@ -14,15 +13,18 @@ import {
   openUrlMenuItem
 } from 'electron-util';
 import checkUpdate from './check-update';
-import { updateClock } from './clock';
 import config from './config';
-import tray from './tray';
+import {
+  getWindow,
+  sendAction
+} from './util';
 
-export const helpScoutMenuItem: MenuItemConstructorOptions =
-  openUrlMenuItem({
+export function getHelpScoutMenuItem(): MenuItemConstructorOptions {
+  return openUrlMenuItem({
     label: 'Open Help Scout',
     url: config.get('mailboxFolderURL')
   });
+}
 
 export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
   return [
@@ -33,12 +35,8 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
       checked: config.get('timerView'),
       click(menuItem) {
         config.set('timerView', menuItem.checked);
-        updateClock();
-        tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     },
     {
@@ -48,12 +46,8 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
       checked: !config.get('timerView'),
       click(menuItem) {
         config.set('timerView', !menuItem.checked);
-        updateClock();
-        tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     },
     {
@@ -62,12 +56,8 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
       checked: config.get('hideClock'),
       click(menuItem) {
         config.set('hideClock', menuItem.checked),
-        updateClock();
-        tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     }
   ];
@@ -81,12 +71,8 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
       checked: config.get('filterPending'),
       click(menuItem) {
         config.set('filterPending', menuItem.checked),
-        updateClock();
-        tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     },
     {
@@ -97,11 +83,8 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
         app.setLoginItemSettings({
           openAtLogin: menuItem.checked
         });
-        tray.updateMenu();
         updateMenu();
-
-        const [win] = BrowserWindow.getAllWindows();
-        win.webContents.send('send-mailbox-content');
+        sendAction('send-ticket-list');
       }
     }
   ];
@@ -110,8 +93,7 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
 export const logOutMenuItem: MenuItemConstructorOptions = {
   label: 'Log Out',
   click() {
-    const [ win ] = BrowserWindow.getAllWindows();
-    win.webContents.send('log-out');
+    sendAction('log-out');
   }
 };
 
@@ -153,6 +135,21 @@ export const checkUpdateMenuItem: MenuItemConstructorOptions = {
 
 export const debugSubmenu: MenuItemConstructorOptions[] = [
   {
+    label: 'Open DevTools',
+    click() {
+      debug.openDevTools(getWindow());
+    }
+  },
+  {
+    type: 'separator'
+  },
+  {
+    label: 'Show Window',
+    click() {
+      getWindow().show();
+    }
+  },
+  {
     label: 'Show Settings',
     click() {
       config.openInEditor();
@@ -161,7 +158,7 @@ export const debugSubmenu: MenuItemConstructorOptions[] = [
   {
     label: 'Show App Data',
     click() {
-      shell.openItem(app.getPath('userData'));
+      shell.openPath(app.getPath('userData'));
     }
   },
   {
@@ -201,7 +198,7 @@ export default function updateMenu(): Menu {
       {
         type: 'separator'
       },
-      helpScoutMenuItem,
+      getHelpScoutMenuItem(),
       logOutMenuItem
     ]),
     {

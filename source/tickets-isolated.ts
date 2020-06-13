@@ -12,9 +12,19 @@
     }
   }
 
-  function postTickets(): void {
+  function sendTickets(): void {
+    if (!window.App && window.appData) {
+      window.location.reload();
+      return;
+    }
+
     if (window.App) {
       if (window.App.convos) {
+        if (window.App.convos.isOutOfSyncAtFetchTime) {
+          window.location.reload();
+          return;
+        }
+
         const convos = window.App.convos.models;
 
         if (Object.entries(convos).length) {
@@ -22,16 +32,20 @@
             type: 'tickets',
             data: JSON.parse(JSON.stringify(convos))
           }, '*');
+        } else {
+          window.postMessage({
+            type: 'huzzah'
+          }, '*');
         }
       }
     }
   }
 
   window.addEventListener('message', ({ data: { type } }) => {
-    if (type === 'post-tickets') {
-      postTickets();
+    if (type === 'send-tickets') {
+      sendTickets();
     }
   });
 
-  postTickets();
+  sendTickets();
 })(window);

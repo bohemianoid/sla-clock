@@ -1,18 +1,12 @@
 import {
-  addDays,
-  addHours,
+  add,
   set
 } from 'date-fns';
 import { ipcRenderer } from 'electron';
 import elementReady = require('element-ready');
-import config from './config';
 import selectors from './selectors';
 
-let isOnline = true;
-
 ipcRenderer.on('log-out', async () => {
-  config.reset('mailboxFolderURL');
-
   document.querySelector<HTMLElement>(selectors.accountDropdown)!.click();
 
   const logOut: HTMLElement = await elementReady<HTMLElement>(
@@ -21,9 +15,11 @@ ipcRenderer.on('log-out', async () => {
     }
   );
   logOut.click();
+
+  await ipcRenderer.invoke('config-reset', 'mailboxFolderURL');
 });
 
-function createTicket(entry: any): Ticket {
+async function createTicket(entry: any): Promise<Ticket> {
   const ticket: Partial<Ticket> = {};
 
   ticket.id = entry.id;
@@ -43,37 +39,44 @@ function createTicket(entry: any): Ticket {
   }
 
   const slaStart = set(new Date(), {
-    hours: config.get('slaStart.hours' as any),
-    minutes: config.get('slaStart.minutes' as any),
+    hours: await ipcRenderer.invoke('config-get', 'slaStart.hours'),
+    minutes: await ipcRenderer.invoke('config-get', 'slaStart.minutes'),
     seconds: 0,
     milliseconds: 0
   });
   const slaEnd = set(new Date(), {
-    hours: config.get('slaEnd.hours' as any),
-    minutes: config.get('slaEnd.minutes' as any),
+    hours: await ipcRenderer.invoke('config-get', 'slaEnd.hours'),
+    minutes: await ipcRenderer.invoke('config-get', 'slaEnd.minutes'),
     seconds: 0,
     milliseconds: 0
   });
 
   if (ticket.waitingSince < slaStart) {
-    ticket.sla = addHours(slaStart, config.get('sla'));
+    ticket.sla = add(slaStart, {
+      hours: await ipcRenderer.invoke('config-get', 'sla')
+    });
   } else if (ticket.waitingSince > slaEnd) {
-    ticket.sla = addDays(addHours(slaStart, config.get('sla')), 1);
+    ticket.sla = add(slaStart, {
+      days: 1,
+      hours: await ipcRenderer.invoke('config-get', 'sla')
+    });
   } else {
-    ticket.sla = addHours(ticket.waitingSince, config.get('sla'));
+    ticket.sla = add(ticket.waitingSince, {
+      hours: await ipcRenderer.invoke('config-get', 'sla')
+    });
   }
 
   return ticket as Ticket;
 }
 
-function createTicketList(data: any): Ticket[] {
-  const tickets: Ticket[] = data.map(createTicket);
+async function createTicketList(data: any): Promise<Ticket[]> {
+  const tickets: Ticket[] = await Promise.all(data.map(createTicket));
 
   return tickets;
 }
 
 async function createHuzzahMessage(): Promise<Huzzah> {
-  const content: HTMLElement = await elementReady<HTMLElement>(
+  const content = await elementReady<HTMLElement>(
     selectors.emptyFolderContent, {
       stopOnDomReady: false
     }
@@ -102,33 +105,20 @@ async function createHuzzahMessage(): Promise<Huzzah> {
   return huzzah as Huzzah;
 }
 
-async function sendMailboxContent(): Promise<void> {
-  if (isOnline === false) {
-    return;
-  }
-
-  const ticketTable = document.querySelector<HTMLElement>('#tblTickets');
-  const emptyFolder = document.querySelector<HTMLElement>('#emptyFolder');
-
-  if (ticketTable) {
-    window.postMessage({type: 'post-tickets'}, '*');
-  } else if (emptyFolder) {
-    ipcRenderer.send('huzzah', await createHuzzahMessage());
-  }
+function sendTicketList(): void {
+  window.postMessage({type: 'send-tickets'}, '*');
 }
 
-ipcRenderer.on('send-mailbox-content', sendMailboxContent);
+ipcRenderer.on('send-ticket-list', sendTicketList);
 
 window.addEventListener('load', async () => {
   const mailbox = document.querySelector<HTMLElement>('#mainCol');
   const offlineUI = document.querySelector<HTMLElement>('.offline-ui');
 
   if (mailbox) {
-    await sendMailboxContent();
+    const ticketListObserver = new MutationObserver(sendTicketList);
 
-    const mailboxContentObserver = new MutationObserver(sendMailboxContent);
-
-    mailboxContentObserver.observe(mailbox, {
+    ticketListObserver.observe(mailbox, {
       childList: true,
       characterData: true,
       subtree: true
@@ -137,18 +127,8 @@ window.addEventListener('load', async () => {
 
   if (offlineUI) {
     const offlineObserver = new MutationObserver(() => {
-      if (
-        offlineUI.classList.contains('offline-ui-down')
-        && isOnline === true
-      ) {
-        isOnline = false;
+      if (offlineUI.classList.contains('offline-ui-down')) {
         ipcRenderer.send('is-offline');
-      } else if (
-        offlineUI.classList.contains('offline-ui-up')
-        && isOnline === false
-      ) {
-        isOnline = true;
-        ipcRenderer.send('is-online');
       }
     });
 
@@ -159,8 +139,12 @@ window.addEventListener('load', async () => {
   }
 });
 
-window.addEventListener('message', ({ data: { type, data }}) => {
+window.addEventListener('message', async ({ data: { type, data }}) => {
   if (type === 'tickets') {
-    ipcRenderer.send('tickets', createTicketList(data));
+    ipcRenderer.send('tickets', await createTicketList(data));
+  }
+
+  if (type === 'huzzah') {
+    ipcRenderer.send('huzzah', await createHuzzahMessage());
   }
 });
