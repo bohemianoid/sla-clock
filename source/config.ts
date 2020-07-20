@@ -16,7 +16,7 @@ type StoreType = {
   filterPending: boolean;
 };
 
-const schema: {[Key in keyof StoreType]: Store.Schema} = {
+const schema: {[Key in keyof StoreType]} = {
   mailboxFolderURL: {
     type: 'string',
     default: 'https://secure.helpscout.net/'
