@@ -119,9 +119,9 @@ window.addEventListener('load', async () => {
     const ticketListObserver = new MutationObserver(sendTicketList);
 
     ticketListObserver.observe(mailbox, {
+      subtree: true,
       childList: true,
-      characterData: true,
-      subtree: true
+      characterData: true
     });
   }
 
