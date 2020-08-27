@@ -45,7 +45,7 @@ function blockNotifications(): void {
 
 function updateTray(url: string): void {
   const isLogin = (url: string): boolean => {
-    const loginURL = 'https://secure.helpscout.net/members/login/';
+    const loginURL = 'https://secure.helpscout.net/members/login';
     return url.startsWith(loginURL);
   };
 
