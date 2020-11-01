@@ -1,4 +1,9 @@
 (window => {
+  if (!window.App && window.appData) {
+    window.location.reload();
+    return;
+  }
+
   if (window.App) {
     if (window.App.convos) {
       if (window.App.convos.pager.hasNext) {
@@ -9,28 +14,17 @@
         }/`;
         return;
       }
-    }
-  }
 
-  function sleep(ms): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+      window.postMessage({
+        type: 'is-out-of-sync-at-fetch-time',
+        data: window.App.convos.isOutOfSyncAtFetchTime
+      }, '*');
+    }
   }
 
   async function sendTickets(): Promise<void> {
-    if (!window.App && window.appData) {
-      window.location.reload();
-      return;
-    }
-
     if (window.App) {
       if (window.App.convos) {
-        if (window.App.convos.isOutOfSyncAtFetchTime) {
-          await sleep(5000);
-
-          window.location.reload();
-          return;
-        }
-
         const convos = window.App.convos.models;
 
         if (Object.entries(convos).length) {

@@ -11,3 +11,8 @@ export function sendAction<T>(action: string, args?: T): void {
   const win = getWindow();
   win.webContents.send(action, args);
 }
+
+export function reloadWindow(): void {
+  const win = getWindow();
+  win.webContents.reload();
+}

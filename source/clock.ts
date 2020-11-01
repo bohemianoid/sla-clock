@@ -6,18 +6,33 @@ import {
   set
 } from 'date-fns';
 import {
-  BrowserWindow,
   NativeImage,
   nativeImage
 } from 'electron';
 import config from './config';
 import tray from './tray';
-import { sendAction } from './util';
+import {
+  reloadWindow,
+  sendAction
+} from './util';
 
-const cronJob = new cron.CronJob('0 * * * * *', () => {
+let isOutOfSync = false;
+
+export function updateOutOfSync(outOfSync: boolean): void {
+  isOutOfSync = outOfSync;
+}
+
+const sendJob = new cron.CronJob('0 * * * * *', () => {
   sendAction('send-ticket-list');
 });
-cronJob.start();
+sendJob.start();
+
+const syncJob = new cron.CronJob('0 */5 * * * *', () => {
+  if (isOutOfSync) {
+    reloadWindow();
+  }
+});
+syncJob.start();
 
 export function formatTimer(sla: Date): string {
   sla = set(sla, {
