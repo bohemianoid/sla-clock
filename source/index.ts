@@ -14,7 +14,8 @@ import pWaitFor from 'p-wait-for';
 import {
   formatTimer,
   getStatusIcon,
-  updateClock
+  updateClock,
+  updateOutOfSync
 } from './clock';
 import config from './config';
 import createAppMenu from './menu';
@@ -120,7 +121,8 @@ function createHiddenWindow(): BrowserWindow {
     webPreferences: {
       preload: path.join(__dirname, 'browser.js'),
       enableRemoteModule: false,
-      contextIsolation: true
+      contextIsolation: true,
+      worldSafeExecuteJavaScript: true
     }
   });
 
@@ -141,6 +143,12 @@ function createHiddenWindow(): BrowserWindow {
   tray.create();
   tray.startAnimation();
   await offlineTray();
+
+  ipcMain.on('is-out-of-sync-at-fetch-time',
+    (event: Event, outOfSync: boolean) => {
+      updateOutOfSync(outOfSync);
+    }
+  );
 
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
     if (isOffline) {
