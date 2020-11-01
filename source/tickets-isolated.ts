@@ -8,8 +8,10 @@
     if (window.App.convos) {
       if (window.App.convos.pager.hasNext) {
         window.location.href = `${
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           window.App.convos.pager.baseURL
         }1/${
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           window.App.convos.pager.total
         }/`;
         return;
@@ -27,7 +29,7 @@
       if (window.App.convos) {
         const convos = window.App.convos.models;
 
-        if (Object.entries(convos).length) {
+        if (Object.entries(convos).length > 0) {
           window.postMessage({
             type: 'tickets',
             data: JSON.parse(JSON.stringify(convos))
@@ -41,7 +43,7 @@
     }
   }
 
-  window.addEventListener('message', ({ data: { type } }) => {
+  window.addEventListener('message', ({data: {type}}) => {
     if (type === 'send-tickets') {
       sendTickets();
     }

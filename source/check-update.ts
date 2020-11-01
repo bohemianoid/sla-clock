@@ -41,7 +41,7 @@ function showOfflineDialog(): void {
     buttons: [
       'OK'
     ]
-  })
+  });
 }
 
 export default (): void => {
@@ -51,19 +51,19 @@ export default (): void => {
     'https://api.github.com/repos/simonroth/sla-clock/releases/latest'
   );
 
-  request.on('response', (response) => {
-    response.on('data', (data) => {
+  request.on('response', response => {
+    response.on('data', data => {
       latestRelease = JSON.parse(data.toString());
     });
 
     response.on('end', () => {
       const url = latestRelease.html_url;
-      const version = latestRelease.tag_name.substring(1);
+      const version = latestRelease.tag_name.slice(1);
 
-      if (app.getVersion() !== version) {
-        showUpdateAvailableDialog(version, url);
-      } else {
+      if (app.getVersion() === version) {
         showNoUpdateDialog();
+      } else {
+        showUpdateAvailableDialog(version, url);
       }
     });
   });
@@ -73,4 +73,4 @@ export default (): void => {
   });
 
   request.end();
-}
+};

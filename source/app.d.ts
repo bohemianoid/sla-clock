@@ -1,4 +1,4 @@
 interface Window {
-  App: any,
-  appData: any
+  App: any;
+  appData: any;
 }

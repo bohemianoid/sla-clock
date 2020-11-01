@@ -4,8 +4,8 @@ import {
   Menu,
   MenuItemConstructorOptions,
   Tray
-} from 'electron'
-import { is } from 'electron-util';
+} from 'electron';
+import {is} from 'electron-util';
 import isURL = require('is-url-superb');
 import config from './config';
 import {
@@ -17,7 +17,7 @@ import {
   helpSubmenu,
   logOutMenuItem
 } from './menu';
-import { getWindow } from './util';
+import {getWindow} from './util';
 
 let tray: Tray | undefined;
 let isIdle = false;
@@ -135,7 +135,7 @@ export default {
           frames.push(frames.shift());
 
           animate(frames);
-        }, 400)
+        }, 400);
       })(frames);
     }
   },
@@ -146,7 +146,7 @@ export default {
       animation = null;
     }
   }
-}
+};
 
 function getIconPath(idle: boolean): string {
   const icon = idle ? 'iconIdleTemplate.png' : 'iconTemplate.png';

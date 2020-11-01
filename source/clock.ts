@@ -47,7 +47,7 @@ export function formatTimer(sla: Date): string {
   const mm = differenceInMinutes(sla, now);
 
   return `${
-    hh<0 || mm<0 ? '-' : '+'
+    hh < 0 || mm < 0 ? '-' : '+'
   }${
     Math.abs(hh)
   }:${
@@ -69,7 +69,7 @@ function getStatusIconName(sla: Date): string {
   }
 
   if (mm < 60) {
-    return 'NSStatusPartiallyAvailable'
+    return 'NSStatusPartiallyAvailable';
   }
 
   return 'NSStatusAvailable';
@@ -77,8 +77,8 @@ function getStatusIconName(sla: Date): string {
 
 export function getStatusIcon(sla: Date): NativeImage {
   return nativeImage
-           .createFromNamedImage(getStatusIconName(sla))
-           .resize({width: 12});
+    .createFromNamedImage(getStatusIconName(sla))
+    .resize({width: 12});
 }
 
 export function updateClock(sla: Date): void {
@@ -87,8 +87,8 @@ export function updateClock(sla: Date): void {
   if (config.get('hideClock')) {
     tray.setTitle('');
   } else {
-    tray.setTitle(config.get('timerView')
-                  ? formatTimer(sla)
-                  : format(sla, 'HH:mm'));
+    tray.setTitle(config.get('timerView') ?
+      formatTimer(sla) :
+      format(sla, 'HH:mm'));
   }
 }

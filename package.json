@@ -6,6 +6,8 @@
   "main": "dist-js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
+    "lint": "tsc && xo",
+    "test": "npm run lint",
     "start": "tsc && electron .",
     "pack": "tsc && electron-builder --dir",
     "dist": "tsc && electron-builder --macos"
@@ -28,6 +30,17 @@
     "electron": "^9.3.2",
     "electron-builder": "^22.8.1",
     "typescript": "^4.0.3"
+    "xo": "^0.34.1"
+  "xo": {
+    "envs": [
+      "browser",
+      "node"
+    ],
+    "space": true,
+    "rules": {
+      "@typescript-eslint/no-floating-promises": "off",
+      "import/no-anonymous-default-export": "off"
+    }
   },
   "build": {
     "files": [

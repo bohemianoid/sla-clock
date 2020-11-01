@@ -2,7 +2,7 @@ import {
   add,
   set
 } from 'date-fns';
-import { ipcRenderer } from 'electron';
+import {ipcRenderer} from 'electron';
 import elementReady = require('element-ready');
 import selectors from './selectors';
 
@@ -32,6 +32,7 @@ async function createTicket(entry: any): Promise<Ticket> {
     if (entry.waitingSince === '') {
       ticket.waitingSince = new Date(entry.modifiedAt);
     } else {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       ticket.waitingSince = new Date(Date.parse(`${entry.waitingSince} UTC`));
     }
   } else {
@@ -70,7 +71,9 @@ async function createTicket(entry: any): Promise<Ticket> {
 }
 
 async function createTicketList(data: any): Promise<Ticket[]> {
-  const tickets: Ticket[] = await Promise.all(data.map(createTicket));
+  const tickets: Ticket[] = await Promise.all(data.map(
+    async entry => createTicket(entry)
+  ));
 
   return tickets;
 }
@@ -139,7 +142,7 @@ window.addEventListener('load', async () => {
   }
 });
 
-window.addEventListener('message', async ({ data: { type, data }}) => {
+window.addEventListener('message', async ({data: {type, data}}) => {
   if (type === 'is-out-of-sync-at-fetch-time') {
     ipcRenderer.send('is-out-of-sync-at-fetch-time', data);
   }

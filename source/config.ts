@@ -67,6 +67,6 @@ const schema: {[Key in keyof StoreType]} = {
     type: 'boolean',
     default: true
   }
-}
+};
 
-export default new Store<StoreType>({ schema });
+export default new Store<StoreType>({schema});

@@ -55,7 +55,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
       type: 'checkbox',
       checked: config.get('hideClock'),
       click(menuItem) {
-        config.set('hideClock', menuItem.checked),
+        config.set('hideClock', menuItem.checked);
         updateMenu();
         sendAction('send-ticket-list');
       }
@@ -70,7 +70,7 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
       type: 'checkbox',
       checked: config.get('filterPending'),
       click(menuItem) {
-        config.set('filterPending', menuItem.checked),
+        config.set('filterPending', menuItem.checked);
         updateMenu();
         sendAction('send-ticket-list');
       }
@@ -218,7 +218,7 @@ export default function updateMenu(): Menu {
   }
 
   const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu)
+  Menu.setApplicationMenu(menu);
 
   return menu;
 }

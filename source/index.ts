@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import {readFileSync} from 'fs';
 import * as path from 'path';
 import {
   app,
@@ -8,8 +8,8 @@ import {
   shell
 } from 'electron';
 import debug = require('electron-debug');
-import { enforceMacOSAppLocation } from 'electron-util';
-import isOnline from 'is-online';
+import {enforceMacOSAppLocation} from 'electron-util';
+import isOnline = require('is-online');
 import pWaitFor from 'p-wait-for';
 import {
   formatTimer,
@@ -53,17 +53,17 @@ function updateTray(url: string): void {
   const isTwoFactorAuth = (url: string): boolean => {
     const twoFactorAuthURL = 'https://secure.helpscout.net/members/2fa/';
     return url.startsWith(twoFactorAuthURL);
-  }
+  };
 
   const isDashboard = (url: string): boolean => {
     const dashboardURL = 'https://secure.helpscout.net/';
     return url === dashboardURL;
-  }
+  };
 
   const isMailbox = (url: string): boolean => {
     const mailboxURL = 'https://secure.helpscout.net/mailbox/';
     return url.startsWith(mailboxURL);
-  }
+  };
 
   if (isLogin(url) || isTwoFactorAuth(url)) {
     tray.stopAnimation();
@@ -156,47 +156,46 @@ function createHiddenWindow(): BrowserWindow {
     }
 
     const slaTickets = tickets
-                         .filter(({ status }) => {
-                           if (config.get('filterPending')) {
-                             return status !== 2;
-                           }
+      .filter(({status}) => {
+        if (config.get('filterPending')) {
+          return status !== 2;
+        }
 
-                           return true;
-                         })
-                         .map(ticket => {
-                           ticket.waitingSince = new Date(ticket.waitingSince);
-                           ticket.sla = new Date(ticket.sla);
+        return true;
+      })
+      .map(ticket => {
+        ticket.waitingSince = new Date(ticket.waitingSince);
+        ticket.sla = new Date(ticket.sla);
 
-                           return ticket;
-                         })
-                         .sort((a, b) => {
-                           return a.waitingSince.getTime()
-                                  - b.waitingSince.getTime();
-                         });
+        return ticket;
+      })
+      .sort((a, b) => {
+        return a.waitingSince.getTime() - b.waitingSince.getTime();
+      });
 
     console.log(slaTickets);
 
     tray.stopAnimation();
     tray.setIdle(false);
 
-    if (slaTickets.length) {
+    if (slaTickets.length > 0) {
       updateClock(slaTickets[0].sla);
     } else {
       tray.setTitle(
-        config.get('hideClock')
-        ? ''
-        : 'No SLA'
+        config.get('hideClock') ?
+          '' :
+          'No SLA'
       );
     }
 
-    const ticketItems = slaTickets.slice(0, 3).map(({ id, number, sla }) => {
+    const ticketItems = slaTickets.slice(0, 3).map(({id, number, sla}) => {
       return {
         icon: getStatusIcon(sla),
         label: `${number.toString()} — ${formatTimer(sla)}`,
         click() {
           shell.openExternal(`https://secure.helpscout.net/conversation/${id}`);
         }
-      }
+      };
     });
     tray.updateMenu([
       {
@@ -217,9 +216,9 @@ function createHiddenWindow(): BrowserWindow {
     tray.stopAnimation();
     tray.setIdle(false);
     tray.setTitle(
-      config.get('hideClock')
-      ? ''
-      : `${huzzah.title.charAt(0)}${huzzah.title.slice(1).toLowerCase()}`
+      config.get('hideClock') ?
+        '' :
+        `${huzzah.title.charAt(0)}${huzzah.title.slice(1).toLowerCase()}`
     );
     tray.updateMenu([
       {
@@ -240,7 +239,7 @@ function createHiddenWindow(): BrowserWindow {
     await offlineTray();
   });
 
-  const { webContents } = hiddenWindow;
+  const {webContents} = hiddenWindow;
 
   webContents.on('did-start-loading', () => {
     tray.startAnimation();
@@ -270,10 +269,9 @@ function createHiddenWindow(): BrowserWindow {
 })();
 
 ipcMain.handle('config-get', (event, key) => {
-	return config.get(key);
+  return config.get(key);
 });
 
 ipcMain.handle('config-reset', (event, key) => {
   config.reset(key);
-	return;
 });
