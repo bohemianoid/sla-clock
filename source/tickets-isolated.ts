@@ -16,11 +16,6 @@
         }/`;
         return;
       }
-
-      window.postMessage({
-        type: 'is-out-of-sync-at-fetch-time',
-        data: window.App.convos.isOutOfSyncAtFetchTime
-      }, '*');
     }
   }
 

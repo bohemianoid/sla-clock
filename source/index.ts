@@ -14,8 +14,7 @@ import pWaitFor from 'p-wait-for';
 import {
   formatTimer,
   getStatusIcon,
-  updateClock,
-  updateOutOfSync
+  updateClock
 } from './clock';
 import config from './config';
 import createAppMenu from './menu';
@@ -144,12 +143,6 @@ function createHiddenWindow(): BrowserWindow {
   tray.startAnimation();
   await offlineTray();
 
-  ipcMain.on('is-out-of-sync-at-fetch-time',
-    (event: Event, outOfSync: boolean) => {
-      updateOutOfSync(outOfSync);
-    }
-  );
-
   ipcMain.on('tickets', (event: Event, tickets: Ticket[]) => {
     if (isOffline) {
       return;
@@ -249,18 +242,16 @@ function createHiddenWindow(): BrowserWindow {
     await offlineTray();
   });
 
-  webContents.on('dom-ready', async () => {
+  webContents.on('did-stop-loading', () => {
     const url = webContents.getURL();
 
     updateTray(url);
+  });
 
+  webContents.on('dom-ready', async () => {
     await webContents.executeJavaScript(
       readFileSync(path.join(__dirname, 'tickets-isolated.js'), 'utf8')
     );
-  });
-
-  webContents.on('will-navigate', (event, url) => {
-    updateTray(url);
   });
 
   webContents.on('page-title-updated', () => {

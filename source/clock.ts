@@ -12,15 +12,10 @@ import {
 import config from './config';
 import tray from './tray';
 import {
+  getWindow,
   reloadWindow,
   sendAction
 } from './util';
-
-let isOutOfSync = false;
-
-export function updateOutOfSync(outOfSync: boolean): void {
-  isOutOfSync = outOfSync;
-}
 
 const sendJob = new cron.CronJob('0 * * * * *', () => {
   sendAction('send-ticket-list');
@@ -28,7 +23,7 @@ const sendJob = new cron.CronJob('0 * * * * *', () => {
 sendJob.start();
 
 const syncJob = new cron.CronJob('0 */5 * * * *', () => {
-  if (isOutOfSync) {
+  if (!getWindow().isVisible()) {
     reloadWindow();
   }
 });

@@ -143,10 +143,6 @@ window.addEventListener('load', async () => {
 });
 
 window.addEventListener('message', async ({data: {type, data}}) => {
-  if (type === 'is-out-of-sync-at-fetch-time') {
-    ipcRenderer.send('is-out-of-sync-at-fetch-time', data);
-  }
-
   if (type === 'tickets') {
     ipcRenderer.send('tickets', await createTicketList(data));
   }
