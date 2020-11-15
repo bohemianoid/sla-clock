@@ -96,13 +96,13 @@ async function createHuzzahMessage(): Promise<Huzzah> {
     return huzzah as Huzzah;
   }
 
-  huzzah.title = content.querySelector<HTMLElement>('h4')!.textContent;
+  huzzah.title = content.querySelector<HTMLElement>('h2, h4')!.textContent;
   huzzah.body = content.querySelector<HTMLElement>('p')!.textContent;
 
-  const link = content.querySelector<HTMLElement>('p > a');
+  const link = content.querySelector<HTMLLinkElement>('p > a');
 
   if (link) {
-    huzzah.url = link.getAttribute('href');
+    huzzah.url = link.href;
   }
 
   return huzzah as Huzzah;
