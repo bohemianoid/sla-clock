@@ -1,3 +1,4 @@
+import compareVersions = require('compare-versions');
 import {
   app,
   dialog,
@@ -60,7 +61,7 @@ export default (): void => {
       const url = latestRelease.html_url;
       const version = latestRelease.tag_name.slice(1);
 
-      if (app.getVersion() === version) {
+      if (compareVersions.compare(app.getVersion(), version, '>=')) {
         showNoUpdateDialog();
       } else {
         showUpdateAvailableDialog(version, url);
