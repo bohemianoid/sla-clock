@@ -97,6 +97,11 @@ export const logOutMenuItem: MenuItemConstructorOptions = {
   }
 };
 
+export const aboutMenuItem: MenuItemConstructorOptions = {
+  label: `${app.getName()} ${app.getVersion()}`,
+  enabled: false
+};
+
 export const helpSubmenu: MenuItemConstructorOptions[] = [
   openUrlMenuItem({
     label: 'Website',

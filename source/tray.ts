@@ -9,6 +9,7 @@ import {is} from 'electron-util';
 import isURL = require('is-url-superb');
 import config from './config';
 import {
+  aboutMenuItem,
   checkUpdateMenuItem,
   debugSubmenu,
   getPreferencesSubmenu,
@@ -37,6 +38,7 @@ function getMenuItems(): MenuItemConstructorOptions[] {
     {
       type: 'separator'
     },
+    aboutMenuItem,
     {
       label: 'Preferences',
       submenu: getPreferencesSubmenu()
