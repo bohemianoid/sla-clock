@@ -35,10 +35,10 @@ function blockNotifications(): void {
   session.defaultSession.setPermissionRequestHandler(
     (webContents, permission, callback) => {
       if (permission === 'notifications') {
-        return callback(false);
+        callback(false);
+      } else {
+        callback(true);
       }
-
-      callback(true);
     }
   );
 }
