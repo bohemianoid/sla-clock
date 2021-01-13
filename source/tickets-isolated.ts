@@ -5,7 +5,9 @@
   }
 
   if (window.App) {
+    // eslint-disable-next-line unicorn/no-lonely-if
     if (window.App.convos) {
+      // eslint-disable-next-line unicorn/no-lonely-if
       if (window.App.convos.pager.hasNext) {
         window.location.href = `${
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -21,6 +23,7 @@
 
   async function sendTickets(): Promise<void> {
     if (window.App) {
+      // eslint-disable-next-line unicorn/no-lonely-if
       if (window.App.convos) {
         const convos = window.App.convos.models;
 
