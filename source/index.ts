@@ -79,14 +79,18 @@ function updateTray(url: string): void {
   }
 
   if (isDashboard(url)) {
-    tray.stopAnimation();
-    tray.setIdle(true);
-    tray.updateMenu([
-      {
-        label: 'Drop a mailbox folder up here.',
-        enabled: false
-      }
-    ]);
+    if (url === config.get('mailboxFolderURL')) {
+      tray.stopAnimation();
+      tray.setIdle(true);
+      tray.updateMenu([
+        {
+          label: 'Drop a mailbox folder up here.',
+          enabled: false
+        }
+      ]);
+    } else {
+      hiddenWindow.loadURL(config.get('mailboxFolderURL'));
+    }
   }
 }
 
