@@ -10,7 +10,7 @@ SLA Clock is an unofficial menu bar extra for Help Scout with many useful featur
 
 <p align="center">
   <a href="https://github.com/simonroth/sla-clock/releases/latest">
-    <img src="media/screenshot.png" width="786">
+    <img src="media/screenshot.png" width="838">
   </a>
 </p>
 
