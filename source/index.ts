@@ -82,6 +82,7 @@ function updateTray(url: string): void {
     if (url === config.get('mailboxFolderURL')) {
       tray.stopAnimation();
       tray.setIdle(true);
+      tray.setTitle('');
       tray.updateMenu([
         {
           label: 'Drop a mailbox folder up here.',
@@ -90,6 +91,13 @@ function updateTray(url: string): void {
       ]);
     } else {
       hiddenWindow.loadURL(config.get('mailboxFolderURL'));
+    }
+  }
+
+  if (isMailbox(url)) {
+    // eslint-disable-next-line unicorn/no-lonely-if
+    if (!url.endsWith('/')) {
+      hiddenWindow.loadURL(url + '/');
     }
   }
 }
