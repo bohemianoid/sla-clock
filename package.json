@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "electron": "^9.4.4",
-    "electron-builder": "^22.10.5",
+    "electron-builder": "22.10.4",
     "typescript": "^4.2.4",
     "xo": "^0.39.1"
   },
