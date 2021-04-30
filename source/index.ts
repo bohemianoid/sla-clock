@@ -68,7 +68,14 @@ function updateTray(url: string): void {
     tray.stopAnimation();
     tray.setIdle(true);
     tray.setTitle('');
-    tray.updateMenu([]);
+    tray.updateMenu([
+      {
+        label: 'Log In',
+        click() {
+          hiddenWindow.show();
+        }
+      }
+    ]);
     app.dock.show();
     hiddenWindow.show();
   }
