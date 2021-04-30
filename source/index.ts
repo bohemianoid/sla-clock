@@ -247,7 +247,7 @@ function createHiddenWindow(): BrowserWindow {
     ]);
   });
 
-  ipcMain.on('is-offline', async (event: Event) => {
+  ipcMain.on('is-offline', async () => {
     await offlineTray();
   });
 

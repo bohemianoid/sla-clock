@@ -61,9 +61,11 @@ export default (): void => {
       const url = latestRelease.html_url;
       const version = latestRelease.tag_name.slice(1);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (compareVersions.compare(app.getVersion(), version, '>=')) {
         showNoUpdateDialog();
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         showUpdateAvailableDialog(version, url);
       }
     });

@@ -7,9 +7,10 @@ import elementReady = require('element-ready');
 import selectors from './selectors';
 
 ipcRenderer.on('log-out', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   document.querySelector<HTMLElement>(selectors.accountDropdown)!.click();
 
-  const logOut: HTMLElement = await elementReady<HTMLElement>(
+  const logOut: HTMLElement = await elementReady(
     selectors.logOutMenuItem, {
       stopOnDomReady: false
     }
@@ -29,13 +30,13 @@ async function createTicket(entry: any): Promise<Ticket> {
   ticket.status = entry.status;
 
   if (typeof entry.waitingSince === 'string') {
-    if (entry.waitingSince === '') {
-      ticket.waitingSince = new Date(entry.modifiedAt);
-    } else {
+    ticket.waitingSince = entry.waitingSince === '' ?
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      new Date(entry.modifiedAt) :
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      ticket.waitingSince = new Date(Date.parse(`${entry.waitingSince} UTC`));
-    }
+      new Date(Date.parse(`${entry.waitingSince} UTC`));
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     ticket.waitingSince = new Date(entry.waitingSince);
   }
 
@@ -71,6 +72,7 @@ async function createTicket(entry: any): Promise<Ticket> {
 }
 
 async function createTicketList(data: any): Promise<Ticket[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const tickets: Ticket[] = await Promise.all(data.map(
     async entry => createTicket(entry)
   ));
@@ -79,7 +81,7 @@ async function createTicketList(data: any): Promise<Ticket[]> {
 }
 
 async function createHuzzahMessage(): Promise<Huzzah> {
-  const content = await elementReady<HTMLElement>(
+  const content = await elementReady(
     selectors.emptyFolderContent, {
       stopOnDomReady: false
     }
@@ -96,7 +98,9 @@ async function createHuzzahMessage(): Promise<Huzzah> {
     return huzzah as Huzzah;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   huzzah.title = content.querySelector<HTMLElement>('h2, h4')!.textContent;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   huzzah.body = content.querySelector<HTMLElement>('p')!.textContent;
 
   const link = content.querySelector<HTMLLinkElement>('p > a');
