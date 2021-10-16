@@ -105,11 +105,11 @@ export const aboutMenuItem: MenuItemConstructorOptions = {
 export const helpSubmenu: MenuItemConstructorOptions[] = [
   openUrlMenuItem({
     label: 'Website',
-    url: 'https://github.com/simonroth/sla-clock'
+    url: 'https://github.com/bohemianoid/sla-clock'
   }),
   openUrlMenuItem({
     label: 'Source Code',
-    url: 'https://github.com/simonroth/sla-clock'
+    url: 'https://github.com/bohemianoid/sla-clock'
   }),
   {
     label: 'Report an Issue…',
@@ -123,7 +123,7 @@ export const helpSubmenu: MenuItemConstructorOptions[] = [
 ${debugInfo()}`;
 
       openNewGitHubIssue({
-        user: 'simonroth',
+        user: 'bohemianoid',
         repo: 'sla-clock',
         body
       });

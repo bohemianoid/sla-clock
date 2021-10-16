@@ -9,7 +9,7 @@
 SLA Clock is an unofficial menu bar extra for Help Scout with many useful features. To start watching your remaining SLA time, just drop the URL of a Help Scout mailbox folder onto the menu bar extra.
 
 <p align="center">
-  <a href="https://github.com/simonroth/sla-clock/releases/latest">
+  <a href="https://github.com/bohemianoid/sla-clock/releases/latest">
     <img src="media/screenshot.png" width="838">
   </a>
 </p>
@@ -17,7 +17,7 @@ SLA Clock is an unofficial menu bar extra for Help Scout with many useful featur
 ## Install
 *macOS 10.10+ is supported (64-bit only).*
 
-[**Download**](https://github.com/simonroth/sla-clock/releases/latest) the `.dmg` file.
+[**Download**](https://github.com/bohemianoid/sla-clock/releases/latest) the `.dmg` file.
 
 ## Dev
 Built with [Electron](https://electronjs.org).

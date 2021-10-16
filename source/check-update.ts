@@ -49,7 +49,7 @@ export default (): void => {
   let latestRelease: any;
 
   const request = net.request(
-    'https://api.github.com/repos/simonroth/sla-clock/releases/latest'
+    'https://api.github.com/repos/bohemianoid/sla-clock/releases/latest'
   );
 
   request.on('response', response => {

@@ -12,8 +12,8 @@
     "pack": "tsc && electron-builder --dir",
     "dist": "tsc && electron-builder --macos"
   },
-  "repository": "github:simonroth/sla-clock",
-  "author": "Simon Roth <code@simonroth.ch> (https://simonroth.ch)",
+  "repository": "github:bohemianoid/sla-clock",
+  "author": "Simon Häfliger <code@simonhaefliger.ch> (https://simonhaefliger.ch)",
   "license": "MIT",
   "dependencies": {
     "compare-versions": "^3.6.0",
@@ -49,7 +49,7 @@
       "**/*",
       "!media${/*}"
     ],
-    "appId": "ch.simonroth.sla-clock",
+    "appId": "ch.bohemianoid.sla-clock",
     "mac": {
       "darkModeSupport": true
     }
