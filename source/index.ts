@@ -183,6 +183,9 @@ function createHiddenWindow(): BrowserWindow {
       })
       .sort((a, b) => {
         return a.waitingSince.getTime() - b.waitingSince.getTime();
+      })
+      .sort((a, b) => {
+        return a.sla.getTime() - b.sla.getTime();
       });
 
     console.log(slaTickets);

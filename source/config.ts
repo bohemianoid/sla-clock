@@ -4,7 +4,14 @@ type StoreType = {
   mailboxFolderURL: string;
   timerView: boolean;
   hideClock: boolean;
-  sla: number;
+  slaGeneral: {
+    hours: number;
+    minutes: number;
+  };
+  slaPriority: {
+    hours: number;
+    minutes: number;
+  };
   slaStart: {
     hours: number;
     minutes: number;
@@ -16,7 +23,7 @@ type StoreType = {
   filterPending: boolean;
 };
 
-const schema: {[Key in keyof StoreType]} = {
+const schema: Store.Schema<StoreType> = {
   mailboxFolderURL: {
     type: 'string',
     default: 'https://secure.helpscout.net/'
@@ -29,9 +36,35 @@ const schema: {[Key in keyof StoreType]} = {
     type: 'boolean',
     default: false
   },
-  sla: {
-    type: 'number',
-    default: 3
+  slaGeneral: {
+    type: 'object',
+    properties: {
+      hours: {
+        type: 'number'
+      },
+      minutes: {
+        type: 'number'
+      }
+    },
+    default: {
+      hours: 3,
+      minutes: 0
+    }
+  },
+  slaPriority: {
+    type: 'object',
+    properties: {
+      hours: {
+        type: 'number'
+      },
+      minutes: {
+        type: 'number'
+      }
+    },
+    default: {
+      hours: 0,
+      minutes: 30
+    }
   },
   slaStart: {
     type: 'object',
@@ -69,4 +102,19 @@ const schema: {[Key in keyof StoreType]} = {
   }
 };
 
-export default new Store<StoreType>({schema});
+function updateSLASetting(store: Store<StoreType>): void {
+  if (store.has('sla')) {
+    store.set('slaGeneral.hours', store.get('sla'));
+    // @ts-expect-error
+    store.delete('sla');
+  }
+}
+
+function migrate(store: Store<StoreType>): void {
+  updateSLASetting(store);
+}
+
+const store = new Store<StoreType>({schema});
+migrate(store);
+
+export default store;

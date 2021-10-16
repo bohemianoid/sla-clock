@@ -28,6 +28,7 @@ async function createTicket(entry: any): Promise<Ticket> {
   ticket.subject = entry.subject;
   ticket.number = entry.number;
   ticket.status = entry.status;
+  ticket.tags = entry.tags === null ? [] : entry.tags.map(tag => tag.name);
 
   if (typeof entry.waitingSince === 'string') {
     ticket.waitingSince = entry.waitingSince === '' ?
@@ -53,18 +54,27 @@ async function createTicket(entry: any): Promise<Ticket> {
     milliseconds: 0
   });
 
+  let sla = await ipcRenderer.invoke('config-get', 'slaGeneral');
+
+  if (ticket.tags.includes('priority-support')) {
+    sla = await ipcRenderer.invoke('config-get', 'slaPriority');
+  }
+
   if (ticket.waitingSince < slaStart) {
     ticket.sla = add(slaStart, {
-      hours: await ipcRenderer.invoke('config-get', 'sla')
+      hours: sla.hours,
+      minutes: sla.minutes
     });
   } else if (ticket.waitingSince > slaEnd) {
     ticket.sla = add(slaStart, {
       days: 1,
-      hours: await ipcRenderer.invoke('config-get', 'sla')
+      hours: sla.hours,
+      minutes: sla.minutes
     });
   } else {
     ticket.sla = add(ticket.waitingSince, {
-      hours: await ipcRenderer.invoke('config-get', 'sla')
+      hours: sla.hours,
+      minutes: sla.minutes
     });
   }
 

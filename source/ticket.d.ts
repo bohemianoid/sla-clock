@@ -4,6 +4,7 @@ interface Ticket {
   subject: string;
   number: number;
   status: number;
+  tags: string[];
   waitingSince: Date;
   sla: Date;
 }
