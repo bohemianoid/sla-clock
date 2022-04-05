@@ -21,7 +21,6 @@
     "date-fns": "^2.25.0",
     "electron-debug": "^3.2.0",
     "electron-store": "^8.0.1",
-    "electron-util": "^0.17.2",
     "element-ready": "^5.0.0",
     "is-online": "^9.0.1",
     "is-url-superb": "^5.0.0",

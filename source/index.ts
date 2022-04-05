@@ -7,7 +7,6 @@ import {
   session,
   shell,
 } from 'electron';
-import {enforceMacOSAppLocation} from 'electron-util';
 import debug from 'electron-debug';
 import isOnline from 'is-online';
 import pWaitFor from 'p-wait-for';
@@ -152,8 +151,6 @@ function createHiddenWindow(): BrowserWindow {
 
 (async () => {
   await app.whenReady();
-
-  enforceMacOSAppLocation();
 
   createAppMenu();
   hiddenWindow = createHiddenWindow();

@@ -5,7 +5,6 @@ import {
   MenuItemConstructorOptions,
   Tray,
 } from 'electron';
-import {is} from 'electron-util';
 import isURL from 'is-url-superb';
 import config from './config.js';
 import {
@@ -50,7 +49,7 @@ function getMenuItems(): MenuItemConstructorOptions[] {
     },
   ];
 
-  if (is.development) {
+  if (!app.isPackaged) {
     menuItems.push({
       label: 'Debug',
       submenu: debugSubmenu,

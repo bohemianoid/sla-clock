@@ -6,13 +6,6 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from 'electron';
-import {
-  appMenu,
-  debugInfo,
-  is,
-  openNewGitHubIssue,
-  openUrlMenuItem
-} from 'electron-util';
 import debug from 'electron-debug';
 import newGithubIssueUrl from 'new-github-issue-url';
 import checkUpdate from './check-update.js';
@@ -23,10 +16,12 @@ import {
 } from './util.js';
 
 export function getHelpScoutMenuItem(): MenuItemConstructorOptions {
-  return openUrlMenuItem({
+  return {
     label: 'Open Help Scout',
-    url: config.get('mailboxFolderURL')
-  });
+    click() {
+      shell.openExternal(config.get('mailboxFolderUrl'));
+    },
+  };
 }
 
 export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
@@ -106,14 +101,18 @@ export const aboutMenuItem: MenuItemConstructorOptions = {
 };
 
 export const helpSubmenu: MenuItemConstructorOptions[] = [
-  openUrlMenuItem({
+  {
     label: 'Website',
-    url: 'https://github.com/bohemianoid/sla-clock'
-  }),
-  openUrlMenuItem({
+    click() {
+      shell.openExternal('https://github.com/bohemianoid/sla-clock');
+    },
+  },
+  {
     label: 'Source Code',
-    url: 'https://github.com/bohemianoid/sla-clock'
-  }),
+    click() {
+      shell.openExternal('https://github.com/bohemianoid/sla-clock');
+    },
+  },
   {
     label: 'Report an Issue…',
     click() {
@@ -123,15 +122,20 @@ export const helpSubmenu: MenuItemConstructorOptions[] = [
 
 ---
 
-${debugInfo()}`;
+${app.getName()} ${app.getVersion()}
+Electron ${process.versions.electron}
+${process.platform} ${os.release()}
+Locale: ${app.getLocale()}`;
 
-      openNewGitHubIssue({
+      const url = newGithubIssueUrl({
         user: 'bohemianoid',
         repo: 'sla-clock',
-        body
+        body,
       });
-    }
-  }
+
+      shell.openExternal(url);
+    },
+  },
 ];
 
 export const checkUpdateMenuItem: MenuItemConstructorOptions = {
@@ -192,36 +196,75 @@ export const debugSubmenu: MenuItemConstructorOptions[] = [
   },
 ];
 
+export function getAppMenu(): MenuItemConstructorOptions[] {
+  return [
+    {
+      label: app.getName(),
+      submenu: [
+        {
+          role: 'about',
+        },
+        {
+          type: 'separator',
+        },
+        {
+          label: 'SLA Clock Preferences',
+          submenu: [
+            ...getQuickPreferencesSubmenu(),
+            ...getPreferencesSubmenu(),
+          ],
+        },
+        checkUpdateMenuItem,
+        {
+          type: 'separator',
+        },
+        getHelpScoutMenuItem(),
+        logOutMenuItem,
+        {
+          type: 'separator',
+        },
+        {
+          role: 'services',
+        },
+        {
+          type: 'separator',
+        },
+        {
+          role: 'hide',
+        },
+        {
+          role: 'hideOthers',
+        },
+        {
+          role: 'unhide',
+        },
+        {
+          type: 'separator',
+        },
+        {
+          role: 'quit',
+        },
+      ],
+    },
+  ];
+}
+
 export default function updateMenu(): Menu {
   const template: MenuItemConstructorOptions[] = [
-    appMenu([
-      {
-        label: 'SLA Clock Preferences',
-        submenu: [
-          ...getQuickPreferencesSubmenu(),
-          ...getPreferencesSubmenu()
-        ]
-      },
-      checkUpdateMenuItem,
-      {
-        type: 'separator'
-      },
-      getHelpScoutMenuItem(),
-      logOutMenuItem
-    ]),
+    ...getAppMenu(),
     {
-      role: 'editMenu'
+      role: 'editMenu',
     },
     {
       role: 'help',
-      submenu: helpSubmenu
-    }
+      submenu: helpSubmenu,
+    },
   ];
 
-  if (is.development) {
+  if (!app.isPackaged) {
     template.push({
       label: 'Debug',
-      submenu: debugSubmenu
+      submenu: debugSubmenu,
     });
   }
 
