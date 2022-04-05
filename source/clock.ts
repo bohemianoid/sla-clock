@@ -1,28 +1,28 @@
-import cron = require('cron');
+import {
+  NativeImage,
+  nativeImage,
+} from 'electron';
+import {CronJob} from 'cron';
 import {
   differenceInHours,
   differenceInMinutes,
   format,
-  set
+  set,
 } from 'date-fns';
-import {
-  NativeImage,
-  nativeImage
-} from 'electron';
-import config from './config';
-import tray from './tray';
+import config from './config.js';
+import tray from './tray.js';
 import {
   getWindow,
   reloadWindow,
-  sendAction
-} from './util';
+  sendAction,
+} from './util.js';
 
-const sendJob = new cron.CronJob('0 * * * * *', () => {
+const sendJob = new CronJob('0 * * * * *', () => {
   sendAction('send-ticket-list');
 });
 sendJob.start();
 
-const syncJob = new cron.CronJob('0 */5 * * * *', () => {
+const syncJob = new CronJob('0 */5 * * * *', () => {
   if (!getWindow().isVisible()) {
     reloadWindow();
   }
@@ -32,11 +32,11 @@ syncJob.start();
 export function formatTimer(sla: Date): string {
   sla = set(sla, {
     seconds: 0,
-    milliseconds: 0
+    milliseconds: 0,
   });
   const now = set(new Date(), {
     seconds: 0,
-    milliseconds: 0
+    milliseconds: 0,
   });
   const hh = differenceInHours(sla, now);
   const mm = differenceInMinutes(sla, now);
@@ -55,7 +55,7 @@ export function formatTimer(sla: Date): string {
 function getStatusIconName(sla: Date): string {
   const now = set(new Date(), {
     seconds: 0,
-    milliseconds: 0
+    milliseconds: 0,
   });
   const mm = differenceInMinutes(sla, now);
 
@@ -82,8 +82,8 @@ export function updateClock(sla: Date): void {
   if (config.get('hideClock')) {
     tray.setTitle('');
   } else {
-    tray.setTitle(config.get('timerView') ?
-      formatTimer(sla) :
-      format(sla, 'HH:mm'));
+    tray.setTitle(config.get('timerView')
+      ? formatTimer(sla)
+      : format(sla, 'HH:mm'));
   }
 }

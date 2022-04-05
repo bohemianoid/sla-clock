@@ -27,15 +27,14 @@
       if (window.App.convos) {
         const convos = window.App.convos.models;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (Object.entries(convos).length > 0) {
           window.postMessage({
             type: 'tickets',
-            data: JSON.parse(JSON.stringify(convos))
+            data: JSON.parse(JSON.stringify(convos)),
           }, '*');
         } else {
           window.postMessage({
-            type: 'huzzah'
+            type: 'huzzah',
           }, '*');
         }
       }

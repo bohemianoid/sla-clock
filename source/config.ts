@@ -1,7 +1,7 @@
-import Store = require('electron-store');
+import Store from 'electron-store';
 
 type StoreType = {
-  mailboxFolderURL: string;
+  mailboxFolderUrl: string;
   timerView: boolean;
   hideClock: boolean;
   slaGeneral: {
@@ -24,94 +24,105 @@ type StoreType = {
 };
 
 const schema: Store.Schema<StoreType> = {
-  mailboxFolderURL: {
+  mailboxFolderUrl: {
     type: 'string',
-    default: 'https://secure.helpscout.net/'
+    default: 'https://secure.helpscout.net/',
   },
   timerView: {
     type: 'boolean',
-    default: true
+    default: true,
   },
   hideClock: {
     type: 'boolean',
-    default: false
+    default: false,
   },
   slaGeneral: {
     type: 'object',
     properties: {
       hours: {
-        type: 'number'
+        type: 'number',
       },
       minutes: {
-        type: 'number'
-      }
+        type: 'number',
+      },
     },
     default: {
       hours: 3,
-      minutes: 0
-    }
+      minutes: 0,
+    },
   },
   slaPriority: {
     type: 'object',
     properties: {
       hours: {
-        type: 'number'
+        type: 'number',
       },
       minutes: {
-        type: 'number'
-      }
+        type: 'number',
+      },
     },
     default: {
       hours: 0,
-      minutes: 30
-    }
+      minutes: 30,
+    },
   },
   slaStart: {
     type: 'object',
     properties: {
       hours: {
-        type: 'number'
+        type: 'number',
       },
       minutes: {
-        type: 'number'
-      }
+        type: 'number',
+      },
     },
     default: {
       hours: 9,
-      minutes: 0
-    }
+      minutes: 0,
+    },
   },
   slaEnd: {
     type: 'object',
     properties: {
       hours: {
-        type: 'number'
+        type: 'number',
       },
       minutes: {
-        type: 'number'
-      }
+        type: 'number',
+      },
     },
     default: {
       hours: 17,
-      minutes: 0
-    }
+      minutes: 0,
+    },
   },
   filterPending: {
     type: 'boolean',
-    default: true
-  }
+    default: true,
+  },
 };
 
-function updateSLASetting(store: Store<StoreType>): void {
+function updateSlaSetting(store: Store<StoreType>): void {
   if (store.has('sla')) {
     store.set('slaGeneral.hours', store.get('sla'));
-    // @ts-expect-error
+    // @ts-expect-error Argument of type '"sla"' is not assignable to parameter
+    //                  of type 'keyof StoreType'.
     store.delete('sla');
   }
 }
 
+function renameMailboxFolderUrlSetting(store: Store<StoreType>): void {
+  if (store.has('mailboxFolderURL')) {
+    store.set('mailboxFolderUrl', store.get('mailboxFolderURL'));
+    // @ts-expect-error Argument of type '"sla"' is not assignable to parameter
+    //                  of type 'keyof StoreType'.
+    store.delete('mailboxFolderURL');
+  }
+}
+
 function migrate(store: Store<StoreType>): void {
-  updateSLASetting(store);
+  updateSlaSetting(store);
+  renameMailboxFolderUrlSetting(store);
 }
 
 const store = new Store<StoreType>({schema});

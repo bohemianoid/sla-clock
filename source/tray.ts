@@ -1,13 +1,13 @@
-import * as path from 'path';
+import * as path from 'node:path';
 import {
   app,
   Menu,
   MenuItemConstructorOptions,
-  Tray
+  Tray,
 } from 'electron';
 import {is} from 'electron-util';
-import isURL = require('is-url-superb');
-import config from './config';
+import isURL from 'is-url-superb';
+import config from './config.js';
 import {
   aboutMenuItem,
   checkUpdateMenuItem,
@@ -16,44 +16,44 @@ import {
   getQuickPreferencesSubmenu,
   getHelpScoutMenuItem,
   helpSubmenu,
-  logOutMenuItem
-} from './menu';
-import {getWindow} from './util';
+  logOutMenuItem,
+} from './menu.js';
+import {getWindow} from './util.js';
 
 let tray: Tray | undefined;
 let isIdle = false;
-let animation: NodeJS.Timer | null = null;
+let animation: NodeJS.Timer | undefined;
 
 function getMenuItems(): MenuItemConstructorOptions[] {
   const menuItems = [
     getHelpScoutMenuItem(),
     {
-      type: 'separator'
+      type: 'separator',
     },
     ...getQuickPreferencesSubmenu(),
     {
-      type: 'separator'
+      type: 'separator',
     },
     logOutMenuItem,
     {
-      type: 'separator'
+      type: 'separator',
     },
     aboutMenuItem,
     {
       label: 'Preferences',
-      submenu: getPreferencesSubmenu()
+      submenu: getPreferencesSubmenu(),
     },
     checkUpdateMenuItem,
     {
       role: 'help',
-      submenu: helpSubmenu
-    }
+      submenu: helpSubmenu,
+    },
   ];
 
   if (is.development) {
     menuItems.push({
       label: 'Debug',
-      submenu: debugSubmenu
+      submenu: debugSubmenu,
     });
   }
 
@@ -64,16 +64,16 @@ function getContextMenu(menuItems: MenuItemConstructorOptions[]): Menu {
   return Menu.buildFromTemplate([
     ...menuItems,
     {
-      type: 'separator'
+      type: 'separator',
     },
     {
-      role: 'quit'
-    }
+      role: 'quit',
+    },
   ]);
 }
 
 export default {
-  create: () => {
+  create() {
     if (tray) {
       return;
     }
@@ -98,39 +98,42 @@ export default {
     tray.on('drop-text', (event: Event, text: string) => {
       if (isURL(text)) {
         getWindow().loadURL(text);
-        config.set('mailboxFolderURL', text);
+        config.set('mailboxFolderUrl', text);
       }
     });
   },
 
-  setTitle: (title: string) => {
+  setTitle(title: string) {
     tray.setTitle(title);
   },
 
-  setIdle: (idle: boolean) => {
+  setIdle(idle: boolean) {
     tray.setImage(getIconPath(idle));
     isIdle = idle;
   },
 
-  updateMenu: (menuItems: MenuItemConstructorOptions[]) => {
+  updateMenu(menuItems: MenuItemConstructorOptions[]) {
     tray.setContextMenu(getContextMenu([
       ...menuItems,
       {
-        type: 'separator'
+        type: 'separator',
       },
-      ...getMenuItems()
+      ...getMenuItems(),
     ]));
   },
 
-  startAnimation: () => {
+  startAnimation() {
     const frames = [
       getIconPath(true),
+      // eslint-disable-next-line unicorn/prefer-module
       path.join(__dirname, '..', 'static', 'iconFrame01Template.png'),
+      // eslint-disable-next-line unicorn/prefer-module
       path.join(__dirname, '..', 'static', 'iconFrame02Template.png'),
-      path.join(__dirname, '..', 'static', 'iconFrame03Template.png')
+      // eslint-disable-next-line unicorn/prefer-module
+      path.join(__dirname, '..', 'static', 'iconFrame03Template.png'),
     ];
 
-    if (animation === null) {
+    if (animation === undefined) {
       (function animate(frames) {
         animation = setTimeout(() => {
           tray.setImage(frames[0]);
@@ -142,12 +145,12 @@ export default {
     }
   },
 
-  stopAnimation: () => {
-    if (animation !== null) {
+  stopAnimation() {
+    if (animation !== undefined) {
       clearTimeout(animation);
-      animation = null;
+      animation = undefined;
     }
-  }
+  },
 };
 
 function getIconPath(idle: boolean): string {

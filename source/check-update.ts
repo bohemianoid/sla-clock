@@ -1,23 +1,23 @@
-import compareVersions = require('compare-versions');
 import {
   app,
   dialog,
   net,
-  shell
+  shell,
 } from 'electron';
+import compareVersions from 'compare-versions';
 
 async function showUpdateAvailableDialog(
-  version: string, url: string
+  version: string, url: string,
 ): Promise<void> {
   const result = await dialog.showMessageBox({
     message: 'An update is available',
     detail: `Version ${version} is available on GitHub.`,
     buttons: [
       'GitHub...',
-      'Later'
+      'Later',
     ],
     defaultId: 0,
-    cancelId: 1
+    cancelId: 1,
   });
 
   if (result.response === 0) {
@@ -30,8 +30,8 @@ function showNoUpdateDialog(): void {
     message: 'No update available',
     detail: `Version ${app.getVersion()} is the latest version.`,
     buttons: [
-      'OK'
-    ]
+      'OK',
+    ],
   });
 }
 
@@ -40,8 +40,8 @@ function showOfflineDialog(): void {
     message: 'You appear to be offline.',
     detail: `${app.name} requires a working internet connection.`,
     buttons: [
-      'OK'
-    ]
+      'OK',
+    ],
   });
 }
 
@@ -49,7 +49,7 @@ export default (): void => {
   let latestRelease: any;
 
   const request = net.request(
-    'https://api.github.com/repos/bohemianoid/sla-clock/releases/latest'
+    'https://api.github.com/repos/bohemianoid/sla-clock/releases/latest',
   );
 
   request.on('response', response => {
@@ -61,11 +61,9 @@ export default (): void => {
       const url = latestRelease.html_url;
       const version = latestRelease.tag_name.slice(1);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (compareVersions.compare(app.getVersion(), version, '>=')) {
         showNoUpdateDialog();
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         showUpdateAvailableDialog(version, url);
       }
     });

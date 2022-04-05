@@ -1,23 +1,22 @@
+import {ipcRenderer} from 'electron';
 import {
   add,
-  set
+  set,
 } from 'date-fns';
-import {ipcRenderer} from 'electron';
-import elementReady = require('element-ready');
-import selectors from './selectors';
+import elementReady from 'element-ready';
+import selectors from './selectors.js';
 
 ipcRenderer.on('log-out', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   document.querySelector<HTMLElement>(selectors.accountDropdown)!.click();
 
   const logOut: HTMLElement = await elementReady(
     selectors.logOutMenuItem, {
-      stopOnDomReady: false
-    }
+      stopOnDomReady: false,
+    },
   );
   logOut.click();
 
-  await ipcRenderer.invoke('config-reset', 'mailboxFolderURL');
+  await ipcRenderer.invoke('config-reset', 'mailboxFolderUrl');
 });
 
 async function createTicket(entry: any): Promise<Ticket> {
@@ -28,16 +27,15 @@ async function createTicket(entry: any): Promise<Ticket> {
   ticket.subject = entry.subject;
   ticket.number = entry.number;
   ticket.status = entry.status;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   ticket.tags = entry.tags === null ? [] : entry.tags.map(tag => tag.name);
 
   if (typeof entry.waitingSince === 'string') {
-    ticket.waitingSince = entry.waitingSince === '' ?
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      new Date(entry.modifiedAt) :
+    ticket.waitingSince = entry.waitingSince === ''
+      ? new Date(entry.modifiedAt)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      new Date(Date.parse(`${entry.waitingSince} UTC`));
+      : new Date(Date.parse(`${entry.waitingSince} UTC`));
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     ticket.waitingSince = new Date(entry.waitingSince);
   }
 
@@ -45,13 +43,13 @@ async function createTicket(entry: any): Promise<Ticket> {
     hours: await ipcRenderer.invoke('config-get', 'slaStart.hours'),
     minutes: await ipcRenderer.invoke('config-get', 'slaStart.minutes'),
     seconds: 0,
-    milliseconds: 0
+    milliseconds: 0,
   });
   const slaEnd = set(new Date(), {
     hours: await ipcRenderer.invoke('config-get', 'slaEnd.hours'),
     minutes: await ipcRenderer.invoke('config-get', 'slaEnd.minutes'),
     seconds: 0,
-    milliseconds: 0
+    milliseconds: 0,
   });
 
   let sla = await ipcRenderer.invoke('config-get', 'slaGeneral');
@@ -63,18 +61,18 @@ async function createTicket(entry: any): Promise<Ticket> {
   if (ticket.waitingSince < slaStart) {
     ticket.sla = add(slaStart, {
       hours: sla.hours,
-      minutes: sla.minutes
+      minutes: sla.minutes,
     });
   } else if (ticket.waitingSince > slaEnd) {
     ticket.sla = add(slaStart, {
       days: 1,
       hours: sla.hours,
-      minutes: sla.minutes
+      minutes: sla.minutes,
     });
   } else {
     ticket.sla = add(ticket.waitingSince, {
       hours: sla.hours,
-      minutes: sla.minutes
+      minutes: sla.minutes,
     });
   }
 
@@ -82,9 +80,8 @@ async function createTicket(entry: any): Promise<Ticket> {
 }
 
 async function createTicketList(data: any): Promise<Ticket[]> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const tickets: Ticket[] = await Promise.all(data.map(
-    async entry => createTicket(entry)
+    async entry => createTicket(entry),
   ));
 
   return tickets;
@@ -93,8 +90,8 @@ async function createTicketList(data: any): Promise<Ticket[]> {
 async function createHuzzahMessage(): Promise<Huzzah> {
   const content = await elementReady(
     selectors.emptyFolderContent, {
-      stopOnDomReady: false
-    }
+      stopOnDomReady: false,
+    },
   );
 
   const huzzah: Partial<Huzzah> = {};
@@ -102,15 +99,13 @@ async function createHuzzahMessage(): Promise<Huzzah> {
   if (!content) {
     console.error(
       'Could not find empty folder content',
-      selectors.emptyFolderContent
+      selectors.emptyFolderContent,
     );
 
     return huzzah as Huzzah;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   huzzah.title = content.querySelector<HTMLElement>('h2, h4')!.textContent;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   huzzah.body = content.querySelector<HTMLElement>('p')!.textContent;
 
   const link = content.querySelector<HTMLLinkElement>('p > a');
@@ -130,7 +125,7 @@ ipcRenderer.on('send-ticket-list', sendTicketList);
 
 window.addEventListener('load', async () => {
   const mailbox = document.querySelector<HTMLElement>('#mainCol');
-  const offlineUI = document.querySelector<HTMLElement>('.offline-ui');
+  const offlineUi = document.querySelector<HTMLElement>('.offline-ui');
 
   if (mailbox) {
     const ticketListObserver = new MutationObserver(sendTicketList);
@@ -138,20 +133,20 @@ window.addEventListener('load', async () => {
     ticketListObserver.observe(mailbox, {
       subtree: true,
       childList: true,
-      characterData: true
+      characterData: true,
     });
   }
 
-  if (offlineUI) {
+  if (offlineUi) {
     const offlineObserver = new MutationObserver(() => {
-      if (offlineUI.classList.contains('offline-ui-down')) {
+      if (offlineUi.classList.contains('offline-ui-down')) {
         ipcRenderer.send('is-offline');
       }
     });
 
-    offlineObserver.observe(offlineUI, {
+    offlineObserver.observe(offlineUi, {
       attributes: true,
-      attributeFilter: ['class']
+      attributeFilter: ['class'],
     });
   }
 });

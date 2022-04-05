@@ -1,10 +1,11 @@
+import os from 'node:os';
+import process from 'node:process';
 import {
   app,
   Menu,
   MenuItemConstructorOptions,
-  shell
+  shell,
 } from 'electron';
-import debug = require('electron-debug');
 import {
   appMenu,
   debugInfo,
@@ -12,12 +13,14 @@ import {
   openNewGitHubIssue,
   openUrlMenuItem
 } from 'electron-util';
-import checkUpdate from './check-update';
-import config from './config';
+import debug from 'electron-debug';
+import newGithubIssueUrl from 'new-github-issue-url';
+import checkUpdate from './check-update.js';
+import config from './config.js';
 import {
   getWindow,
-  sendAction
-} from './util';
+  sendAction,
+} from './util.js';
 
 export function getHelpScoutMenuItem(): MenuItemConstructorOptions {
   return openUrlMenuItem({
@@ -37,7 +40,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
         config.set('timerView', menuItem.checked);
         updateMenu();
         sendAction('send-ticket-list');
-      }
+      },
     },
     {
       label: 'View as Clock',
@@ -48,7 +51,7 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
         config.set('timerView', !menuItem.checked);
         updateMenu();
         sendAction('send-ticket-list');
-      }
+      },
     },
     {
       label: `Hide ${config.get('timerView') ? 'Timer' : 'Clock'}`,
@@ -58,8 +61,8 @@ export function getQuickPreferencesSubmenu(): MenuItemConstructorOptions[] {
         config.set('hideClock', menuItem.checked);
         updateMenu();
         sendAction('send-ticket-list');
-      }
-    }
+      },
+    },
   ];
 }
 
@@ -73,7 +76,7 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
         config.set('filterPending', menuItem.checked);
         updateMenu();
         sendAction('send-ticket-list');
-      }
+      },
     },
     {
       label: 'Launch at Login',
@@ -81,12 +84,12 @@ export function getPreferencesSubmenu(): MenuItemConstructorOptions[] {
       checked: app.getLoginItemSettings().openAtLogin,
       click(menuItem) {
         app.setLoginItemSettings({
-          openAtLogin: menuItem.checked
+          openAtLogin: menuItem.checked,
         });
         updateMenu();
         sendAction('send-ticket-list');
-      }
-    }
+      },
+    },
   ];
 }
 
@@ -94,12 +97,12 @@ export const logOutMenuItem: MenuItemConstructorOptions = {
   label: 'Log Out',
   click() {
     sendAction('log-out');
-  }
+  },
 };
 
 export const aboutMenuItem: MenuItemConstructorOptions = {
   label: `${app.getName()} ${app.getVersion()}`,
-  enabled: false
+  enabled: false,
 };
 
 export const helpSubmenu: MenuItemConstructorOptions[] = [
@@ -135,7 +138,7 @@ export const checkUpdateMenuItem: MenuItemConstructorOptions = {
   label: 'Check for Update',
   click() {
     checkUpdate();
-  }
+  },
 };
 
 export const debugSubmenu: MenuItemConstructorOptions[] = [
@@ -143,31 +146,31 @@ export const debugSubmenu: MenuItemConstructorOptions[] = [
     label: 'Open DevTools',
     click() {
       debug.openDevTools(getWindow());
-    }
+    },
   },
   {
-    type: 'separator'
+    type: 'separator',
   },
   {
     label: 'Show Window',
     click() {
       getWindow().show();
-    }
+    },
   },
   {
     label: 'Show Settings',
     click() {
       config.openInEditor();
-    }
+    },
   },
   {
     label: 'Show App Data',
     click() {
       shell.openPath(app.getPath('userData'));
-    }
+    },
   },
   {
-    type: 'separator'
+    type: 'separator',
   },
   {
     label: 'Delete Settings',
@@ -176,7 +179,7 @@ export const debugSubmenu: MenuItemConstructorOptions[] = [
 
       app.relaunch();
       app.quit();
-    }
+    },
   },
   {
     label: 'Delete App Data',
@@ -185,8 +188,8 @@ export const debugSubmenu: MenuItemConstructorOptions[] = [
 
       app.relaunch();
       app.quit();
-    }
-  }
+    },
+  },
 ];
 
 export default function updateMenu(): Menu {

@@ -1,27 +1,27 @@
-import {readFileSync} from 'fs';
-import * as path from 'path';
+import {readFileSync} from 'node:fs';
+import * as path from 'node:path';
 import {
   app,
   BrowserWindow,
   ipcMain,
   session,
-  shell
+  shell,
 } from 'electron';
-import debug = require('electron-debug');
 import {enforceMacOSAppLocation} from 'electron-util';
-import isOnline = require('is-online');
+import debug from 'electron-debug';
+import isOnline from 'is-online';
 import pWaitFor from 'p-wait-for';
 import {
   formatTimer,
   getStatusIcon,
-  updateClock
-} from './clock';
-import config from './config';
-import createAppMenu from './menu';
-import tray from './tray';
+  updateClock,
+} from './clock.js';
+import config from './config.js';
+import createAppMenu from './menu.js';
+import tray from './tray.js';
 
 debug({
-  devToolsMode: 'undocked'
+  devToolsMode: 'undocked',
 });
 
 let hiddenWindow: BrowserWindow;
@@ -39,29 +39,29 @@ function blockNotifications(): void {
       } else {
         callback(true);
       }
-    }
+    },
   );
 }
 
 function updateTray(url: string): void {
   const isLogin = (url: string): boolean => {
-    const loginURL = 'https://secure.helpscout.net/members/login';
-    return url.startsWith(loginURL);
+    const loginUrl = 'https://secure.helpscout.net/members/login';
+    return url.startsWith(loginUrl);
   };
 
   const isTwoFactorAuth = (url: string): boolean => {
-    const twoFactorAuthURL = 'https://secure.helpscout.net/members/2fa/';
-    return url.startsWith(twoFactorAuthURL);
+    const twoFactorAuthUrl = 'https://secure.helpscout.net/members/2fa/';
+    return url.startsWith(twoFactorAuthUrl);
   };
 
   const isDashboard = (url: string): boolean => {
-    const dashboardURL = 'https://secure.helpscout.net/';
-    return url === dashboardURL;
+    const dashboardUrl = 'https://secure.helpscout.net/';
+    return url === dashboardUrl;
   };
 
   const isMailbox = (url: string): boolean => {
-    const mailboxURL = 'https://secure.helpscout.net/mailbox/';
-    return url.startsWith(mailboxURL);
+    const mailboxUrl = 'https://secure.helpscout.net/mailbox/';
+    return url.startsWith(mailboxUrl);
   };
 
   if (isLogin(url) || isTwoFactorAuth(url)) {
@@ -73,8 +73,8 @@ function updateTray(url: string): void {
         label: 'Log In',
         click() {
           hiddenWindow.show();
-        }
-      }
+        },
+      },
     ]);
     app.dock.show();
     hiddenWindow.show();
@@ -86,18 +86,18 @@ function updateTray(url: string): void {
   }
 
   if (isDashboard(url)) {
-    if (url === config.get('mailboxFolderURL')) {
+    if (url === config.get('mailboxFolderUrl')) {
       tray.stopAnimation();
       tray.setIdle(true);
       tray.setTitle('');
       tray.updateMenu([
         {
           label: 'Drop a mailbox folder up here.',
-          enabled: false
-        }
+          enabled: false,
+        },
       ]);
     } else {
-      hiddenWindow.loadURL(config.get('mailboxFolderURL'));
+      hiddenWindow.loadURL(config.get('mailboxFolderUrl'));
     }
   }
 
@@ -119,8 +119,8 @@ async function offlineTray(): Promise<void> {
     tray.updateMenu([
       {
         label: 'You appear to be offline.',
-        enabled: false
-      }
+        enabled: false,
+      },
     ]);
 
     await pWaitFor(isOnline, {interval: 1000});
@@ -129,7 +129,7 @@ async function offlineTray(): Promise<void> {
     tray.startAnimation();
   }
 
-  hiddenWindow.loadURL(config.get('mailboxFolderURL'));
+  hiddenWindow.loadURL(config.get('mailboxFolderUrl'));
 }
 
 function createHiddenWindow(): BrowserWindow {
@@ -137,16 +137,15 @@ function createHiddenWindow(): BrowserWindow {
     title: app.name,
     show: false,
     webPreferences: {
+      // eslint-disable-next-line unicorn/prefer-module
       preload: path.join(__dirname, 'browser.js'),
-      enableRemoteModule: false,
       contextIsolation: true,
-      worldSafeExecuteJavaScript: true
-    }
+    },
   });
 
   blockNotifications();
 
-  win.loadURL(config.get('mailboxFolderURL'));
+  win.loadURL(config.get('mailboxFolderUrl'));
 
   return win;
 }
@@ -181,12 +180,8 @@ function createHiddenWindow(): BrowserWindow {
 
         return ticket;
       })
-      .sort((a, b) => {
-        return a.waitingSince.getTime() - b.waitingSince.getTime();
-      })
-      .sort((a, b) => {
-        return a.sla.getTime() - b.sla.getTime();
-      });
+      .sort((a, b) => a.waitingSince.getTime() - b.waitingSince.getTime())
+      .sort((a, b) => a.sla.getTime() - b.sla.getTime());
 
     console.log(slaTickets);
 
@@ -197,27 +192,25 @@ function createHiddenWindow(): BrowserWindow {
       updateClock(slaTickets[0].sla);
     } else {
       tray.setTitle(
-        config.get('hideClock') ?
-          '' :
-          'No SLA'
+        config.get('hideClock')
+          ? ''
+          : 'No SLA',
       );
     }
 
-    const ticketItems = slaTickets.slice(0, 3).map(({id, number, sla}) => {
-      return {
-        icon: getStatusIcon(sla),
-        label: `${number.toString()} — ${formatTimer(sla)}`,
-        click() {
-          shell.openExternal(`https://secure.helpscout.net/conversation/${id}`);
-        }
-      };
-    });
+    const ticketItems = slaTickets.slice(0, 3).map(({id, number, sla}) => ({
+      icon: getStatusIcon(sla),
+      label: `${number.toString()} — ${formatTimer(sla)}`,
+      click() {
+        shell.openExternal(`https://secure.helpscout.net/conversation/${id}`);
+      },
+    }));
     tray.updateMenu([
       {
         label: hiddenWindow.getTitle().split(' - ')[0],
-        enabled: false
+        enabled: false,
       },
-      ...ticketItems
+      ...ticketItems,
     ]);
   });
 
@@ -231,22 +224,22 @@ function createHiddenWindow(): BrowserWindow {
     tray.stopAnimation();
     tray.setIdle(false);
     tray.setTitle(
-      config.get('hideClock') ?
-        '' :
-        `${huzzah.title.charAt(0)}${huzzah.title.slice(1).toLowerCase()}`
+      config.get('hideClock')
+        ? ''
+        : `${huzzah.title.charAt(0)}${huzzah.title.slice(1).toLowerCase()}`,
     );
     tray.updateMenu([
       {
         label: hiddenWindow.getTitle().split(' - ')[0],
-        enabled: false
+        enabled: false,
       },
       {
         label: huzzah.body,
         enabled: Boolean(huzzah.url),
         click() {
           shell.openExternal(huzzah.url);
-        }
-      }
+        },
+      },
     ]);
   });
 
@@ -272,7 +265,8 @@ function createHiddenWindow(): BrowserWindow {
 
   webContents.on('dom-ready', async () => {
     await webContents.executeJavaScript(
-      readFileSync(path.join(__dirname, 'tickets-isolated.js'), 'utf8')
+      // eslint-disable-next-line unicorn/prefer-module
+      readFileSync(path.join(__dirname, 'tickets-isolated.js'), 'utf8'),
     );
   });
 
@@ -281,9 +275,8 @@ function createHiddenWindow(): BrowserWindow {
   });
 })();
 
-ipcMain.handle('config-get', (event, key) => {
-  return config.get(key);
-});
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+ipcMain.handle('config-get', (event, key) => config.get(key));
 
 ipcMain.handle('config-reset', (event, key) => {
   config.reset(key);
