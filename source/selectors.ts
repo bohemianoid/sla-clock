@@ -1,5 +1,5 @@
 export default {
-  accountDropdown: '#AccountDropdown [data-hsds-dd-menu-trigger="true"]',
+  accountDropdown: '#AccountDropdown .DropListToggler',
   emptyFolderContent: '#emptyFolder .empty-content, #emptySmartFolder .empty-content',
-  logOutMenuItem: '[data-hsds-dd-menu-item-value="log-out"]'
+  logOutMenuItem: '.LOGOUT_MENU_TYPE',
 };
