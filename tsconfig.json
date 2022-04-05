@@ -2,6 +2,7 @@
   "compilerOptions": {
     "outDir": "dist-js",
     "target": "esnext",
-    "module": "commonjs"
+    "module": "commonjs",
+    "esModuleInterop": true
   }
 }
