@@ -155,5 +155,6 @@ export default {
 function getIconPath(idle: boolean): string {
   const icon = idle ? 'iconIdleTemplate.png' : 'iconTemplate.png';
 
+  // eslint-disable-next-line unicorn/prefer-module
   return path.join(__dirname, '..', 'static', icon);
 }

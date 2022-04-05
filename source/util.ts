@@ -1,5 +1,5 @@
 import {
-  BrowserWindow
+  BrowserWindow,
 } from 'electron';
 
 export function getWindow(): BrowserWindow {
